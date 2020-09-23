@@ -10,5 +10,7 @@ package metaherísticas_pr_1;
  * @author Miguerubsk
  */
 public class Algoritmos {
-    
+    static void Greedy(int tam, int[][] matrizDistancias, int sol[]){
+        //TODO
+    }
 }
