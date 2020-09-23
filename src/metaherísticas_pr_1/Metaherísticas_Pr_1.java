@@ -16,6 +16,10 @@ public class Metaherísticas_Pr_1 {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        Configurador config = new Configurador(args[0]);
+        System.out.println(config.getSemillas());
+        System.out.println(config.getFicheros());
+        System.out.println(config.getAlgoritmos());
     }
     
 }
