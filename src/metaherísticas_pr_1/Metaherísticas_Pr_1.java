@@ -5,6 +5,11 @@
  */
 package metaherísticas_pr_1;
 
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  *
  * @author Miguerubsk
@@ -23,6 +28,24 @@ public class Metaherísticas_Pr_1 {
         System.out.println(config.getAlgoritmos());
         System.out.println(Datos.getTamSolucion());
         System.out.println(Datos.getTamMatriz());
+
+        ExecutorService ejecutor = Executors.newCachedThreadPool();
+
+        for (int i = 0; i < config.getAlgoritmos().size(); i++) {
+            for (int j = 0; j < config.getFicheros().size(); j++) {
+                CountDownLatch cdl = new CountDownLatch(config.getSemillas().size());
+                switch (config.getAlgoritmos().get(i)) {
+                    case ("Greedy"):
+                        ArrayList<Algoritmos> m = new ArrayList();
+                        for (int k = 0; k < config.getSemillas().size(); k++) {
+                            Algoritmos meta = new Algoritmos(Datos, cdl, config.getSemillas().get(k));
+                            m.add(meta);
+                            ejecutor.execute(meta);
+                        }
+                }
+            }
+
+        }
     }
 
 }
