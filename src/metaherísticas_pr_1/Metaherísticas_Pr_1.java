@@ -5,10 +5,14 @@
  */
 package metaherísticas_pr_1;
 
+import tools.*;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import static tools.GuardarArchivos.GuardarArchivo;
 
 /**
  *
@@ -22,26 +26,56 @@ public class Metaherísticas_Pr_1 {
     public static void main(String[] args) {
         // TODO code application logic here
         Configurador config = new Configurador(args[0]);
-        CargaDatos Datos = new CargaDatos(config.getFicheros().get(0));
-        System.out.println(config.getSemillas());
-        System.out.println(config.getFicheros());
-        System.out.println(config.getAlgoritmos());
-        System.out.println(Datos.getTamSolucion());
-        System.out.println(Datos.getTamMatriz());
+//        CargaDatos Datos = new CargaDatos(config.getFicheros().get(0));
+        ArrayList<CargaDatos> Datos = new ArrayList<>();
+        for (int i = 0; i < config.getFicheros().size(); i++) {
+            Datos.add(new CargaDatos(config.getFicheros().get(i)));
+        }
 
         ExecutorService ejecutor = Executors.newCachedThreadPool();
 
         for (int i = 0; i < config.getAlgoritmos().size(); i++) {
-            for (int j = 0; j < config.getFicheros().size(); j++) {
-                CountDownLatch cdl = new CountDownLatch(config.getSemillas().size());
-                switch (config.getAlgoritmos().get(i)) {
-                    case ("Greedy"):
-                        ArrayList<Algoritmos> m = new ArrayList();
-                        for (int k = 0; k < config.getSemillas().size(); k++) {
-                            Algoritmos meta = new Algoritmos(Datos, cdl, config.getSemillas().get(k));
-                            m.add(meta);
-                            ejecutor.execute(meta);
-                        }
+            for (int j = 0; j < Datos.size(); j++) {
+                try {
+                    ArrayList<Algoritmos> m = new ArrayList();
+                    CountDownLatch cdl = new CountDownLatch(config.getSemillas().size());
+                    switch (config.getAlgoritmos().get(i)) {
+                        case ("Greedy"):
+                            for (int k = 0; k < config.getSemillas().size(); k++) {
+                                Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k));
+                                m.add(meta);
+                                ejecutor.execute(meta);
+                            }
+                            cdl.await();
+                            for (int k = 0; k < m.size(); k++) {
+                                GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", m.get(k).getLog());
+                            }
+                            break;
+                        case ("Búqueda_Local"):
+                            for (int k = 0; k < config.getSemillas().size(); k++) {
+                                Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k));
+                                m.add(meta);
+                                ejecutor.execute(meta);
+                            }
+                            cdl.await();
+                            for (int k = 0; k < m.size(); k++) {
+                                GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", m.get(k).getLog());
+                            }
+                            break;
+                        case ("Búsqueda_Tabú"):
+                            for (int k = 0; k < config.getSemillas().size(); k++) {
+                                Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k));
+                                m.add(meta);
+                                ejecutor.execute(meta);
+                            }
+                            cdl.await();
+                            for (int k = 0; k < m.size(); k++) {
+                                GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", m.get(k).getLog());
+                            }
+                            break;
+                    }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Metaherísticas_Pr_1.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 

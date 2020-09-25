@@ -5,6 +5,7 @@
  */
 package metaherísticas_pr_1;
 
+import tools.CargaDatos;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
