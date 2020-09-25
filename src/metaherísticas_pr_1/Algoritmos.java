@@ -19,12 +19,14 @@ public class Algoritmos implements Runnable {
     private CargaDatos archivo;
     private StringBuilder log;
     private CountDownLatch cdl;
+    private long[] sol;
 
     public Algoritmos(CargaDatos archivo, CountDownLatch cdl, Long semilla) {
         this.archivo = archivo;
         this.cdl = cdl;
         aleatorio = new Random(semilla);
         log = new StringBuilder();
+        sol = new long[archivo.getTamSolucion()];
     }
     
     @Override
@@ -45,6 +47,12 @@ public class Algoritmos implements Runnable {
     
     public String getLog(){
         return log.toString();
+    }
+    
+    long[] Coste(){
+        
+        
+        return sol;
     }
     
     static void Greedy(int tam, int[][] matrizDistancias, int sol[]){
