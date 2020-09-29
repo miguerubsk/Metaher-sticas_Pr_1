@@ -49,10 +49,10 @@ public class Algoritmos implements Runnable {
         return log.toString();
     }
     
-    long[] Coste(){
+    private double Coste(){
+        double coste = 0.0;
         
-        
-        return sol;
+        return coste;
     }
     
     static void Greedy(int tam, int[][] matrizDistancias, int sol[]){
@@ -69,4 +69,5 @@ public class Algoritmos implements Runnable {
         //TODO
         throw new UnsupportedOperationException("No soportado.");
     }
+    
 }

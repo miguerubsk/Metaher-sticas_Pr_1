@@ -34,6 +34,7 @@ public class CargaDatos {
             while((linea = b.readLine()) != null){
                 String[] split = linea.split(" ");
                 Matriz[Integer.parseInt(split[0])][Integer.parseInt(split[1])] = Double.parseDouble(split[2]);
+                Matriz[Integer.parseInt(split[1])][Integer.parseInt(split[0])] = Double.parseDouble(split[2]);
             }
             
         } catch (IOException e) {
