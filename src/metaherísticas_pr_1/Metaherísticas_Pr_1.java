@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static tools.GuardarArchivos.GuardarArchivo;
@@ -23,7 +24,7 @@ public class Metaherísticas_Pr_1 {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // TODO code application logic here
         Configurador config = new Configurador(args[0]);
 //        CargaDatos Datos = new CargaDatos(config.getFicheros().get(0));
@@ -80,6 +81,8 @@ public class Metaherísticas_Pr_1 {
             }
 
         }
+        ejecutor.shutdown();
+        System.out.println("TERMINADO");
     }
 
 }

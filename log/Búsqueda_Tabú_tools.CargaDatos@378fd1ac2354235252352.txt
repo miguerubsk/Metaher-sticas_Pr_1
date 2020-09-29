@@ -1,0 +1,5 @@
+El valor de la primera solución es XIteración Y 
+Coste mejor X
+Se acepta solución generada con coste XXXXX
+El costo final es X
+ Duración: 0 segundos
