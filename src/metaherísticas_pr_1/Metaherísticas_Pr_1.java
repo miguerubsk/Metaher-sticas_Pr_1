@@ -43,7 +43,7 @@ public class Metaherísticas_Pr_1 {
                     switch (config.getAlgoritmos().get(i)) {
                         case ("Greedy"):
                             for (int k = 0; k < config.getSemillas().size(); k++) {
-                                Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k));
+                                Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k), "Greedy");
                                 m.add(meta);
                                 ejecutor.execute(meta);
                             }
