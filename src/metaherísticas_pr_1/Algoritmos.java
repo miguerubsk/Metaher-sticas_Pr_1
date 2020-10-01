@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import tools.CargaDatos;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 /**
  *
  * @author Miguerubsk
  */
-public class Algoritmos implements Runnable {
+public class Algoritmos implements Callable<ArrayList<Integer>> {
 
     private Random aleatorio;
     private CargaDatos archivo;
@@ -34,7 +35,7 @@ public class Algoritmos implements Runnable {
     }
 
     @Override
-    public void run() {
+    public ArrayList<Integer> call() throws Exception {
         switch (algoritmo) {
             case ("Greedy"):
                 Greedy(archivo, archivo.getTamMatriz(), archivo.getTamSolucion(), sol);
@@ -48,6 +49,8 @@ public class Algoritmos implements Runnable {
                 break;
         }
         cdl.countDown();
+        
+        return sol;
     }
 
     public String getLog() {
@@ -65,18 +68,18 @@ public class Algoritmos implements Runnable {
         ArrayList<Integer> M = new ArrayList();
         Boolean[] marcados = new Boolean[numDatos];
         Arrays.fill(marcados, Boolean.FALSE);
-        
-        Integer punto = aleatorio.nextInt(numDatos-1);
+
+        Integer punto = aleatorio.nextInt(numDatos - 1);
         marcados[punto] = true;
         s.add(punto);
-        
+
         for (int i = 1; i < numSoluciones; i++) {
             double d = 0.0;
             for (int j = 0; j < numDatos; j++) {
                 if (!marcados[j]) {
                     for (int k = 0; k < i; k++) {
 //                        d += dist[j][s[k]];
-                        d+=archivo.getMatriz()[j][s.get(k)];
+                        d += archivo.getMatriz()[j][s.get(k)];
                     }
                     if (d > mayordist) {
                         mayordist = d;
