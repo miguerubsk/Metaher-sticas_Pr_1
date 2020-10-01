@@ -54,10 +54,12 @@ public class Algoritmos implements Runnable {
         return log.toString();
     }
 
-    private double Coste() {
-        double coste = 0.0;
-
-        return coste;
+    private double Coste(double distancias[][], int punto, ArrayList<Integer> sol) {
+        double distancia = 0.0;
+        for (int i = 0; i < sol.size(); i++) {
+            distancia += distancias[punto][sol.get(i)];            
+        }
+        return distancia;
     }
 
     private void Greedy(CargaDatos archivo, int numDatos, int numSoluciones, ArrayList<Integer> s) {
@@ -75,7 +77,6 @@ public class Algoritmos implements Runnable {
             for (int j = 0; j < numDatos; j++) {
                 if (!marcados[j]) {
                     for (int k = 0; k < i; k++) {
-//                        d += dist[j][s[k]];
                         d+=archivo.getMatriz()[j][s.get(k)];
                     }
                     if (d > mayordist) {
