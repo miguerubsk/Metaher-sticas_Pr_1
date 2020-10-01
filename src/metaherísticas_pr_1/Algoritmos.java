@@ -37,13 +37,14 @@ public class Algoritmos implements Runnable {
     public void run() {
         switch (algoritmo) {
             case ("Greedy"):
-                Greedy(archivo, archivo.getTamMatriz(), sol.size(), sol);
+                Greedy(archivo, archivo.getTamMatriz(), archivo.getTamSolucion(), sol);
+                System.out.println("metaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString());
                 break;
-            case ("Búqueda_Local"):
-
+            case ("Búsqueda_Local"):
+                System.out.println("metaherísticas_pr_1.Algoritmos.run(): Búsqueda_Local");
                 break;
             case ("Búsqueda_Tabú"):
-
+                System.out.println("metaherísticas_pr_1.Algoritmos.run(): Búsqueda_Tabú");
                 break;
         }
         cdl.countDown();

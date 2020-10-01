@@ -26,7 +26,7 @@ public class Metaherísticas_Pr_1 {
      */
     public static void main(String[] args) throws InterruptedException {
         // TODO code application logic here
-        Configurador config = new Configurador(args[0]);
+        Configurador config = new Configurador("config.txt");
 //        CargaDatos Datos = new CargaDatos(config.getFicheros().get(0));
         ArrayList<CargaDatos> Datos = new ArrayList<>();
         for (int i = 0; i < config.getFicheros().size(); i++) {
@@ -40,40 +40,14 @@ public class Metaherísticas_Pr_1 {
                 try {
                     ArrayList<Algoritmos> m = new ArrayList();
                     CountDownLatch cdl = new CountDownLatch(config.getSemillas().size());
-                    switch (config.getAlgoritmos().get(i)) {
-                        case ("Greedy"):
-                            for (int k = 0; k < config.getSemillas().size(); k++) {
-                                Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k), "Greedy");
-                                m.add(meta);
-                                ejecutor.execute(meta);
-                            }
-                            cdl.await();
-                            for (int k = 0; k < m.size(); k++) {
-                                GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", m.get(k).getLog());
-                            }
-                            break;
-                        case ("Búqueda_Local"):
-                            for (int k = 0; k < config.getSemillas().size(); k++) {
-                                Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k));
-                                m.add(meta);
-                                ejecutor.execute(meta);
-                            }
-                            cdl.await();
-                            for (int k = 0; k < m.size(); k++) {
-                                GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", m.get(k).getLog());
-                            }
-                            break;
-                        case ("Búsqueda_Tabú"):
-                            for (int k = 0; k < config.getSemillas().size(); k++) {
-                                Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k));
-                                m.add(meta);
-                                ejecutor.execute(meta);
-                            }
-                            cdl.await();
-                            for (int k = 0; k < m.size(); k++) {
-                                GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", m.get(k).getLog());
-                            }
-                            break;
+                    for (int k = 0; k < config.getSemillas().size(); k++) {
+                        Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k), config.getAlgoritmos().get(i));
+                        m.add(meta);
+                        ejecutor.execute(meta);
+                    }
+                    cdl.await();
+                    for (int k = 0; k < m.size(); k++) {
+                        GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", m.get(k).getLog());
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Metaherísticas_Pr_1.class.getName()).log(Level.SEVERE, null, ex);
