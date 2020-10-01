@@ -25,6 +25,7 @@ public class Metaherísticas_Pr_1 {
 
     /**
      * @param args the command line arguments
+     * @throws java.lang.InterruptedException
      */
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         // TODO code application logic here
