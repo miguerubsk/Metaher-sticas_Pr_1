@@ -7,6 +7,7 @@ package metaherísticas_pr_1;
 
 import tools.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -42,12 +43,12 @@ public class Metaherísticas_Pr_1 {
             for (int j = 0; j < Datos.size(); j++) {
                 try {
                     ArrayList<Algoritmos> m = new ArrayList();
-                    ArrayList<Future<ArrayList<Integer>>> futures = new ArrayList<>();
+                    ArrayList<Future<HashSet<Integer>>> futures = new ArrayList<>();
                     CountDownLatch cdl = new CountDownLatch(config.getSemillas().size());
                     for (int k = 0; k < config.getSemillas().size(); k++) {
                         Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k), config.getAlgoritmos().get(i));
                         m.add(meta);
-                        Future<ArrayList<Integer>> ejecucion = ejecutor.submit(meta);
+                        Future<HashSet<Integer>> ejecucion = ejecutor.submit(meta);
                         futures.add(ejecucion);
                     }
                     cdl.await();
@@ -55,7 +56,7 @@ public class Metaherísticas_Pr_1 {
                         GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", futures.get(k).get().toString());
                     }
                     
-                } catch (InterruptedException ex) {
+                } catch (Exception ex) {
                     Logger.getLogger(Metaherísticas_Pr_1.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
