@@ -30,6 +30,14 @@ public class Timer {
     }
     
     public long TiempoSegundos(){
-        return Time()*1000;
+        return Time()/1000;
+    }
+    
+    public long TiempoMinutos(){
+        return Time()/60000;
+    }
+    
+    public long TiempoHoras(){
+        return Time()/3600000;
     }
 }

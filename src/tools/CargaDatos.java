@@ -16,8 +16,10 @@ import java.io.IOException;
 public class CargaDatos {
     private int TamMatriz, TamSolucion;
     private double Matriz[][];
+    private String NombreFichero;
     
     public CargaDatos(String fichero){
+        NombreFichero = fichero;
         FileReader f = null;
         String linea;
         try {
@@ -54,4 +56,9 @@ public class CargaDatos {
     public double[][] getMatriz() {
         return Matriz;
     }
+
+    public String getNombreFichero() {
+        return NombreFichero;
+    }
+    
 }

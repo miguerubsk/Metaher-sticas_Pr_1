@@ -24,16 +24,16 @@ public class GuardarArchivos {
             
             File directorio = new File("log/");
             if (!directorio.exists()) {
-                System.out.println("tools.GuardarArchivos.GuardarArchivo(): creado directorio");
+//                System.out.println("tools.GuardarArchivos.GuardarArchivo(): creado directorio");
                 directorio.mkdirs();
             }
             
             File file = new File(ruta);
             if (!file.exists()) {
-                System.out.println("tools.GuardarArchivos.GuardarArchivo(): creado archivo");
+//                System.out.println("tools.GuardarArchivos.GuardarArchivo(): creado archivo");
                 file.createNewFile();
             } else {
-                System.out.println("tools.GuardarArchivos.GuardarArchivo(): eliminado y creado archivo");
+//                System.out.println("tools.GuardarArchivos.GuardarArchivo(): eliminado y creado archivo");
                 file.delete();
                 file.createNewFile();
             }
