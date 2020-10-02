@@ -8,6 +8,7 @@ package metaherísticas_pr_1;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import tools.CargaDatos;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -17,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
  *
  * @author Miguerubsk
  */
-public class Algoritmos implements Callable<ArrayList<Integer>> {
+public class Algoritmos implements Callable<HashSet<Integer>> {
 
     private Random aleatorio;
     private CargaDatos archivo;
@@ -39,14 +40,16 @@ public class Algoritmos implements Callable<ArrayList<Integer>> {
     public HashSet<Integer> call() throws Exception {
         switch (algoritmo) {
             case ("Greedy"):
-                Greedy(archivo, archivo.getTamMatriz(), archivo.getTamSolucion(), sol);
+                Greedy();
                 System.out.println("metaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString());
                 break;
             case ("Búsqueda_Local"):
-                System.out.println("metaherísticas_pr_1.Algoritmos.run(): Búsqueda_Local");
+                BusquedaLocal();
+                System.out.println("metaherísticas_pr_1.Algoritmos.run(): Búsqueda_Local" + sol.toString());
                 break;
             case ("Búsqueda_Tabú"):
-                System.out.println("metaherísticas_pr_1.Algoritmos.run(): Búsqueda_Tabú");
+                BusquedaTabu();
+                System.out.println("metaherísticas_pr_1.Algoritmos.run(): Búsqueda_Tabú" + sol.toString());
                 break;
         }
         cdl.countDown();
@@ -58,33 +61,46 @@ public class Algoritmos implements Callable<ArrayList<Integer>> {
         return log.toString();
     }
 
-    private double Coste(double distancias[][], int punto, ArrayList<Integer> sol) {
+    void GenerarSolucionAleatoria() {
+        while (sol.size() < archivo.getTamSolucion()) {
+            sol.add(aleatorio.nextInt() * 500);
+        }
+    }
+
+    private double CostePunto(int punto) {
         double distancia = 0.0;
-        for (int i = 0; i < sol.size(); i++) {
-            distancia += distancias[punto][sol.get(i)];
+        Iterator i = sol.iterator();
+        while (i.hasNext()) {
+            distancia += archivo.getMatriz()[punto][(int) i.next()];
+        }
+        return distancia;
+    }
+    
+    private double CosteSolución(){
+        double distancia = 0.0;
+        for (Iterator i = sol.iterator(); i.hasNext(); i.next()) {
+            for (Iterator j = sol.iterator(); j.hasNext(); j.next()) {
+                distancia += archivo.getMatriz()[(int) j.next()][(int) i.next()];
+            }
         }
         return distancia;
     }
 
-    private void Greedy(CargaDatos archivo, int numDatos, int numSoluciones, HashSet<Integer> s) {
+    private void Greedy() {
         double mayordist = 0.0;
         ArrayList<Integer> M = new ArrayList();
-        Boolean[] marcados = new Boolean[numDatos];
+        Boolean[] marcados = new Boolean[archivo.getTamMatriz()];
         Arrays.fill(marcados, Boolean.FALSE);
 
-        Integer punto = aleatorio.nextInt(numDatos - 1);
+        Integer punto = aleatorio.nextInt(archivo.getTamMatriz() - 1);
         marcados[punto] = true;
-        s.add(punto);
+        sol.add(punto);
 
-        for (int i = 1; i < numSoluciones; i++) {
+        for (int i = 1; i < archivo.getTamSolucion(); i++) {
             double d = 0.0;
-            for (int j = 0; j < numDatos; j++) {
+            for (int j = 0; j < archivo.getTamMatriz(); j++) {
                 if (!marcados[j]) {
-//                    for (int k = 0; k < i; k++) {
-//                        d += archivo.getMatriz()[j][s.get(k)];
-//                    }
-
-                    d = Coste(archivo.getMatriz(), j, s);
+                    d = CostePunto(j);
                     if (d > mayordist) {
                         mayordist = d;
                         punto = j;
@@ -94,26 +110,19 @@ public class Algoritmos implements Callable<ArrayList<Integer>> {
 
             }
             marcados[punto] = true;
-            s.add(punto);
+            sol.add(punto);
             mayordist = 0.0;
         }
     }
 
-    static void BusquedaLocal() {
-        //TODO
+    private void BusquedaLocal() {
+        GenerarSolucionAleatoria();
         throw new UnsupportedOperationException("No soportado.");
     }
 
-    static void BusquedaTabu() {
+    private void BusquedaTabu() {
         //TODO
         throw new UnsupportedOperationException("No soportado.");
-    }
-    
-    private HashSet GenerarAleatoria(){
-        while(sol.size() < 50){
-            sol.add(aleatorio.nextInt()*500);
-        }
-        return sol;
     }
 
 }
