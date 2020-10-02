@@ -79,9 +79,11 @@ public class Algoritmos implements Callable<ArrayList<Integer>> {
             double d = 0.0;
             for (int j = 0; j < numDatos; j++) {
                 if (!marcados[j]) {
-                    for (int k = 0; k < i; k++) {
-                        d += archivo.getMatriz()[j][s.get(k)];
-                    }
+//                    for (int k = 0; k < i; k++) {
+//                        d += archivo.getMatriz()[j][s.get(k)];
+//                    }
+
+                    d = Coste(archivo.getMatriz(), j, s);
                     if (d > mayordist) {
                         mayordist = d;
                         punto = j;
