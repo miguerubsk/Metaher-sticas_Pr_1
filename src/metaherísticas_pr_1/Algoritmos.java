@@ -7,6 +7,7 @@ package metaherísticas_pr_1;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import tools.CargaDatos;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -22,7 +23,7 @@ public class Algoritmos implements Callable<ArrayList<Integer>> {
     private CargaDatos archivo;
     private StringBuilder log;
     private CountDownLatch cdl;
-    private ArrayList<Integer> sol;
+    private HashSet<Integer> sol;
     private String algoritmo;
 
     public Algoritmos(CargaDatos archivo, CountDownLatch cdl, Long semilla, String algoritmo) {
@@ -30,12 +31,12 @@ public class Algoritmos implements Callable<ArrayList<Integer>> {
         this.cdl = cdl;
         aleatorio = new Random(semilla);
         log = new StringBuilder();
-        sol = new ArrayList(archivo.getTamSolucion());
+        sol = new HashSet(archivo.getTamSolucion());
         this.algoritmo = algoritmo;
     }
 
     @Override
-    public ArrayList<Integer> call() throws Exception {
+    public HashSet<Integer> call() throws Exception {
         switch (algoritmo) {
             case ("Greedy"):
                 Greedy(archivo, archivo.getTamMatriz(), archivo.getTamSolucion(), sol);
@@ -65,7 +66,7 @@ public class Algoritmos implements Callable<ArrayList<Integer>> {
         return distancia;
     }
 
-    private void Greedy(CargaDatos archivo, int numDatos, int numSoluciones, ArrayList<Integer> s) {
+    private void Greedy(CargaDatos archivo, int numDatos, int numSoluciones, HashSet<Integer> s) {
         double mayordist = 0.0;
         ArrayList<Integer> M = new ArrayList();
         Boolean[] marcados = new Boolean[numDatos];
@@ -106,6 +107,13 @@ public class Algoritmos implements Callable<ArrayList<Integer>> {
     static void BusquedaTabu() {
         //TODO
         throw new UnsupportedOperationException("No soportado.");
+    }
+    
+    private HashSet GenerarAleatoria(){
+        while(sol.size() < 50){
+            sol.add(aleatorio.nextInt()*500);
+        }
+        return sol;
     }
 
 }
