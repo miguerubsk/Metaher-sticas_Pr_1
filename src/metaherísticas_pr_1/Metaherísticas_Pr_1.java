@@ -49,7 +49,6 @@ public class Metaherísticas_Pr_1 {
                         m.add(meta);
                         Future<ArrayList<Integer>> ejecucion = ejecutor.submit(meta);
                         futures.add(ejecucion);
-                        
                     }
                     cdl.await();
                     for (int k = 0; k < m.size(); k++) {
