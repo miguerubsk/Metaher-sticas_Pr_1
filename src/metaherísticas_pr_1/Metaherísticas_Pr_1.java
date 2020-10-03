@@ -55,7 +55,9 @@ public class Metaherísticas_Pr_1 {
                     for (int k = 0; k < m.size(); k++) {
                         GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", futures.get(k).get().toString());
                     }
-                    
+
+                } catch (UnsupportedOperationException ex) {
+                    Logger.getLogger(Metaherísticas_Pr_1.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (Exception ex) {
                     Logger.getLogger(Metaherísticas_Pr_1.class.getName()).log(Level.SEVERE, null, ex);
                 }
