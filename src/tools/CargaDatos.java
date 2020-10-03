@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package metaherísticas_pr_1;
+package tools;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,8 +16,10 @@ import java.io.IOException;
 public class CargaDatos {
     private int TamMatriz, TamSolucion;
     private double Matriz[][];
+    private String NombreFichero;
     
     public CargaDatos(String fichero){
+        NombreFichero = fichero;
         FileReader f = null;
         String linea;
         try {
@@ -34,6 +36,7 @@ public class CargaDatos {
             while((linea = b.readLine()) != null){
                 String[] split = linea.split(" ");
                 Matriz[Integer.parseInt(split[0])][Integer.parseInt(split[1])] = Double.parseDouble(split[2]);
+                Matriz[Integer.parseInt(split[1])][Integer.parseInt(split[0])] = Double.parseDouble(split[2]);
             }
             
         } catch (IOException e) {
@@ -53,4 +56,9 @@ public class CargaDatos {
     public double[][] getMatriz() {
         return Matriz;
     }
+
+    public String getNombreFichero() {
+        return NombreFichero;
+    }
+    
 }
