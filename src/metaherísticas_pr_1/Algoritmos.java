@@ -32,15 +32,15 @@ public class Algoritmos implements Callable<HashSet<Integer>> {
     private String algoritmo;
     private Timer Tiempo;
     private long Semilla;
-    Vector<Double> Aportes;
-    Vector<Boolean> Marcados ;
+    Vector<Double> aportes;
+    Vector<Boolean> marcados;
 
     public Algoritmos(CargaDatos archivo, CountDownLatch cdl, Long semilla, String algoritmo, Configurador config) {
         this.archivo = archivo;
         this.config = config;
         this.cdl = cdl;
-        this.Aportes = new Vector<>();
-        this.Marcados = new Vector<>();
+        this.aportes = new Vector<>();
+        this.marcados = new Vector<>();
         this.Semilla = semilla;
         aleatorio = new Random(semilla);
         log = new StringBuilder();
@@ -50,18 +50,30 @@ public class Algoritmos implements Callable<HashSet<Integer>> {
 
     @Override
     public HashSet<Integer> call() throws Exception {
+        double coste;
+        long start, stop;
+//        System.out.println(archivo.getMatriz().toString());
         switch (algoritmo) {
             case ("Greedy"):
 //                Tiempo.Start();
-                long Start = System.currentTimeMillis();
-                double Coste = Greedy();
+                start = System.currentTimeMillis();
+                coste = Greedy();
 //                Tiempo.Stop();
-                long Stop = System.currentTimeMillis();
-                System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: " + Semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString() + "\nTiempo: " + ((Stop - Start)) + " ms" + "\nCoste Solución: " + Coste + "\n\n");
+                stop = System.currentTimeMillis();
+                System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
+                        + Semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString()
+                        + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste 
+                        + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
                 break;
             case ("Búsqueda_Local"):
-//                BusquedaLocal();
-                System.out.println("metaherísticas_pr_1.Algoritmos.run(): Búsqueda_Local" + sol.toString());
+//                Tiempo.Start();
+                start = System.currentTimeMillis();
+                coste = BusquedaLocal();
+//                Tiempo.Stop();
+                stop = System.currentTimeMillis();
+                System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
+                        + Semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda local" + sol.toString()
+                        + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste + "\n\n");
                 break;
             case ("Búsqueda_Tabú"):
 //                BusquedaTabu();
@@ -77,11 +89,10 @@ public class Algoritmos implements Callable<HashSet<Integer>> {
         return log.toString();
     }
 
-    private double GenerarSolucionAleatoria() {
+    private void GenerarSolucionAleatoria() {
         while (sol.size() < archivo.getTamSolucion()) {
-            sol.add(aleatorio.nextInt() * 500);
+            sol.add(aleatorio.nextInt(archivo.getTamMatriz()));
         }
-        return CosteSolución();
     }
 
     private double CostePunto(int punto) {
@@ -93,40 +104,16 @@ public class Algoritmos implements Callable<HashSet<Integer>> {
         return distancia;
     }
 
-    private double CosteSolución() {
-        double distancia = 0.0;
-        Iterator j = sol.iterator();
-        j.next();
-        for (Iterator i = sol.iterator(); i.hasNext(); i.next()) {
-            while (j.hasNext()) {
-                distancia += archivo.getMatriz()[(int) j.next()][(int) i.next()];
-            }
-        }
-        return distancia;
-    }
-
-    private int PosAporteMenor() {
-        int pos = 0;
-        double menor = 999999999;
-        for(int i = 0; i < Aportes.size(); ++i){
-            if(!(Marcados.get(i)) && Aportes.get(i) < menor){
-                menor= Aportes.get(i);
-                pos = i;
-            }
-        }
-        Marcados.insertElementAt(true, pos);
-        return pos;
-    }
-
-    private boolean Esta(int ele){
+    private boolean Esta(int ele) {
         Iterator<Integer> i = sol.iterator();
-        while(i.hasNext()){
-            if(i.next() == ele)
+        while (i.hasNext()) {
+            if (i.next() == ele) {
                 return true;
+            }
         }
         return false;
     }
-    
+
     private double Greedy() {
         double mayordist = 0.0;
         ArrayList<Integer> M = new ArrayList();
@@ -158,20 +145,80 @@ public class Algoritmos implements Callable<HashSet<Integer>> {
     }
 
     private double BusquedaLocal() {
-        boolean mejora = true;
-        int iteracion = 0, pos1, pos2;
-        double CosteActual = GenerarSolucionAleatoria();
+        long iteracion = 0;
+        GenerarSolucionAleatoria();
+        double costeActual = CosteSolución();
 
-        while (iteracion < config.getEvaluaciones() && mejora) {
-            mejora = false;
-            Iterator<Integer> i = sol.iterator();
-            while (i.hasNext()) {
-                Aportes.add(CostePunto(i.next()));
-                Marcados.add(false);
+        Iterator<Integer> i = sol.iterator();
+        while (i.hasNext()) {
+            aportes.add(CostePunto(i.next()));
+            marcados.add(false);
+        }
+
+        while (iteracion != 50000) {
+
+            int posAporteMenor = PosAporteMenor();
+            int contador = 0;
+            for (Integer integer : sol) {
+                if (contador == posAporteMenor) {
+                    sol.remove(integer);
+                    break;
+                }
+
+                contador++;
+            }
+
+            int j = 0;
+            boolean mejora = false;
+            while (j < archivo.getTamMatriz() && !mejora) {
+                sol.add((int) archivo.getMatriz()[j][0]);
+                double nuevoCoste = CosteSolución();
+                if (nuevoCoste < costeActual) {
+                    costeActual = nuevoCoste;
+                    mejora = true;
+                    break;
+                }
+
+                sol.remove((int) archivo.getMatriz()[j][0]);
+                j++;
             }
             
+            iteracion++;
+            
+//            System.out.println(iteracion);
+            if(iteracion ==50000){
+                System.out.println(iteracion);
+            }
+            
+            
         }
+
         return CosteSolución();
+    }
+
+    private double CosteSolución() {
+        double distancia = 0.0;
+        Iterator j = sol.iterator();
+        j.next();
+        for (Iterator i = sol.iterator(); i.hasNext(); i.next()) {
+            while (j.hasNext()) {
+                distancia += archivo.getMatriz()[(int)i.next()][(int)j.next()];
+            }
+        }
+        return distancia;
+    }
+
+    private int PosAporteMenor() {
+        int pos = 0;
+        double menor = 999999999;
+        for (int i = 0; i < aportes.size(); ++i) {
+            if (!(marcados.get(i)) && aportes.get(i) < menor) {
+                menor = aportes.get(i);
+                pos = i;
+            }
+        }
+        marcados.insertElementAt(true, pos);
+        return pos;
     }
 
     private double BusquedaTabu() {
