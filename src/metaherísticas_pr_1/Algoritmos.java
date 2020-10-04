@@ -32,15 +32,15 @@ public class Algoritmos implements Callable<HashSet<Integer>> {
     private String algoritmo;
     private Timer Tiempo;
     private long Semilla;
-    Vector<Double> aportes;
-    Vector<Boolean> marcados;
+    Vector<Double> Aportes;
+    Vector<Boolean> Marcados;
 
     public Algoritmos(CargaDatos archivo, CountDownLatch cdl, Long semilla, String algoritmo, Configurador config) {
         this.archivo = archivo;
         this.config = config;
         this.cdl = cdl;
-        this.aportes = new Vector<>();
-        this.marcados = new Vector<>();
+        this.Aportes = new Vector<>();
+        this.Marcados = new Vector<>();
         this.Semilla = semilla;
         aleatorio = new Random(semilla);
         log = new StringBuilder();
@@ -151,8 +151,8 @@ public class Algoritmos implements Callable<HashSet<Integer>> {
 
         Iterator<Integer> i = sol.iterator();
         while (i.hasNext()) {
-            aportes.add(CostePunto(i.next()));
-            marcados.add(false);
+            Aportes.add(CostePunto(i.next()));
+            Marcados.add(false);
         }
 
         while (iteracion != 50000) {
@@ -211,13 +211,13 @@ public class Algoritmos implements Callable<HashSet<Integer>> {
     private int PosAporteMenor() {
         int pos = 0;
         double menor = 999999999;
-        for (int i = 0; i < aportes.size(); ++i) {
-            if (!(marcados.get(i)) && aportes.get(i) < menor) {
-                menor = aportes.get(i);
+        for (int i = 0; i < Aportes.size(); ++i) {
+            if (!(Marcados.get(i)) && Aportes.get(i) < menor) {
+                menor = Aportes.get(i);
                 pos = i;
             }
         }
-        marcados.insertElementAt(true, pos);
+        Marcados.insertElementAt(true, pos);
         return pos;
     }
 
