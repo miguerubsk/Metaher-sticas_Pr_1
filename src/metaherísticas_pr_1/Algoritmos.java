@@ -200,9 +200,12 @@ public class Algoritmos implements Callable<HashSet<Integer>> {
         double distancia = 0.0;
         Iterator j = sol.iterator();
         j.next();
-        for (Iterator i = sol.iterator(); i.hasNext(); i.next()) {
+        for (int i = 0; i < sol.size(); i++) {
             while (j.hasNext()) {
-                distancia += archivo.getMatriz()[(int)i.next()][(int)j.next()];
+                Iterator<Integer> k = sol.iterator();
+                for (int c = 0; c < i; c++)
+                    k.next();
+                distancia += archivo.getMatriz()[k.next()][(int)j.next()];
             }
         }
         return distancia;
