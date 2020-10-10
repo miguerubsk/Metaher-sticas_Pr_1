@@ -125,7 +125,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     private double BusquedaLocal() {
-        Integer iteracion = 0;
+        int iteracion = 0;
 
         generarSolucionAleatoria();
         double costeActual = costeSolucion();
@@ -144,8 +144,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             anterior = sol.get(posAporteMenor);
             costeAnterior = aportes.get(posAporteMenor);
 
-            sol.remove(posAporteMenor);
-            aportes.remove(posAporteMenor);
+            sol.removeElementAt(posAporteMenor);
+            aportes.removeElementAt(posAporteMenor);
 
             for (int i = 0; i < archivo.getTamMatriz(); i++) {
                 if (!sol.contains(i)) {
