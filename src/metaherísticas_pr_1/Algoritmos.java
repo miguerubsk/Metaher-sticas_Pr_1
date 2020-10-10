@@ -125,8 +125,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     private double BusquedaLocal() {
-        long iteracion = 0;
-        boolean terminar = false;
+        Integer iteracion = 0;
 
         generarSolucionAleatoria();
         double costeActual = costeSolucion();
@@ -136,32 +135,43 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             marcados.add(false);
         }
 
-        while (iteracion != 50000 && !terminar) {
-            int posAporteMenor = posicionAporteMenor();
-            int anterior = sol.get(posAporteMenor);
-            double costeAnterior = aportes.get(posAporteMenor);
-            
+        Integer anterior = 0;
+        Integer posAporteMenor = 0;
+        double costeAnterior = 0;
+        while (iteracion < 50000) {
+            System.out.println(iteracion);
+            posAporteMenor = posicionAporteMenor();
+            anterior = sol.get(posAporteMenor);
+            costeAnterior = aportes.get(posAporteMenor);
+
             sol.remove(posAporteMenor);
             aportes.remove(posAporteMenor);
-            
+
             for (int i = 0; i < archivo.getTamMatriz(); i++) {
-                if(!sol.contains(i)){
-                    if(costeAnterior < costePuntoEnSolucion(i)){
+                if (!sol.contains(i)) {
+                    if (costeAnterior < costePuntoEnSolucion(i)) {
                         sol.add(i);
                         aportes.add(costePuntoEnSolucion(i));
-                        
+
                         iteracion++;
-                        
+                        if (iteracion == 50000) {
+                            System.out.println("aaaaaaaaaaa");
+                        }
                         break;
-                    }                    
+                    }
                 }
-                
+
                 iteracion++;
+
+                if (iteracion == 50000) {
+                    System.out.println("aaaaaaaaaaa");
+                }
             }
-            
+        }
+
+        if (sol.size() < archivo.getTamSolucion()) {
             sol.add(anterior);
             aportes.add(costeAnterior);
-            terminar = true;
         }
 
         return costeSolucion();
@@ -176,7 +186,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
     //Funciones auxiliares
     private void generarSolucionAleatoria() {
-        for (int i = 0; i < sol.size(); i++) {
+        for (int i = 0; i < archivo.getTamSolucion(); i++) {
             sol.add(aleatorio.nextInt(archivo.getTamMatriz()));
         }
     }
@@ -206,7 +216,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             for (int j = i + 1; j < sol.size(); j++) {
                 distancia += archivo.getMatriz()[sol.get(i)][sol.get(j)];
             }
-
         }
 
         return distancia;
