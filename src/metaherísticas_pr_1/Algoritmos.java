@@ -125,7 +125,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     private double BusquedaLocal() {
-        int iteracion = 0;
+        Integer iteracion = 0;
 
         generarSolucionAleatoria();
         double costeActual = costeSolucion();
@@ -139,7 +139,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Integer posAporteMenor = 0;
         double costeAnterior = 0;
         while (iteracion < 50000) {
-            System.out.println(iteracion);
+//            System.out.println(iteracion);
             posAporteMenor = posicionAporteMenor();
             anterior = sol.get(posAporteMenor);
             costeAnterior = aportes.get(posAporteMenor);
@@ -154,25 +154,20 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                         aportes.add(costePuntoEnSolucion(i));
 
                         iteracion++;
-                        if (iteracion == 50000) {
-                            System.out.println("aaaaaaaaaaa");
-                        }
                         break;
                     }
                 }
 
                 iteracion++;
-
-                if (iteracion == 50000) {
-                    System.out.println("aaaaaaaaaaa");
-                }
             }
-        }
-
-        if (sol.size() < archivo.getTamSolucion()) {
+            
+            if (sol.size() < archivo.getTamSolucion()) {
             sol.add(anterior);
             aportes.add(costeAnterior);
         }
+        }
+
+        
 
         return costeSolucion();
     }
