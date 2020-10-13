@@ -170,10 +170,22 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     private double BusquedaTabu() {
-        //TODO
         generarSolucionAleatoria();
-        throw new UnsupportedOperationException("No soportado.");
-//        return CosteSolución();
+        int iteracion = 0;
+        double costeActual = costeSolucion();
+        Vector<Integer> MejorSolucion = sol;
+        int posAporteMenor = 0;
+        
+        for (Integer integer : sol) {
+            aportes.add(costePuntoEnSolucion(integer));
+            marcados.add(false);
+        }
+        
+        while(iteracion < 500000){
+            posAporteMenor = posicionAporteMenor();
+        }
+        
+        return costeSolucion();
     }
 
     //Funciones auxiliares
