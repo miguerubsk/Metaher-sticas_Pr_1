@@ -92,7 +92,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Boolean[] marcados = new Boolean[archivo.getTamMatriz()];
         Arrays.fill(marcados, Boolean.FALSE);
 
-        Integer punto = aleatorio.Randint(0,archivo.getTamMatriz() - 1);
+        Integer punto = aleatorio.Randint(0, archivo.getTamMatriz() - 1);
         marcados[punto] = true;
 
         int contador = 1;
@@ -135,7 +135,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Integer anterior = 0;
         Integer posAporteMenor = 0;
         double costeAnterior = 0;
-        while (iteracion < 50000) {
+        while (iteracion < config.getEvaluaciones()) {
 //            System.out.println(iteracion);
             posAporteMenor = posicionAporteMenor();
             anterior = sol.get(posAporteMenor);
@@ -157,14 +157,12 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
                 iteracion++;
             }
-            
-            if (sol.size() < archivo.getTamSolucion()) {
-            sol.add(anterior);
-            aportes.add(costeAnterior);
-        }
-        }
 
-        
+            if (sol.size() < archivo.getTamSolucion()) {
+                sol.add(anterior);
+                aportes.add(costeAnterior);
+            }
+        }
 
         return costeSolucion();
     }
@@ -175,23 +173,40 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         double costeActual = costeSolucion();
         Vector<Integer> MejorSolucion = sol;
         int posAporteMenor = 0;
-        
+
         for (Integer integer : sol) {
             aportes.add(costePuntoEnSolucion(integer));
             marcados.add(false);
         }
-        
-        while(iteracion < 500000){
-            posAporteMenor = posicionAporteMenor();
+
+        while (iteracion < config.getEvaluaciones()) {
+            Vector<Integer> aux = sol;
+            aux.removeElementAt(posicionAporteMenor());
+            aportes.removeElementAt(posicionAporteMenor());
+            
+            int randpos = aleatorio.Randint(0, archivo.getTamMatriz()-11);
+            if (!aux.contains(randpos)) {
+                    aux.add(randpos);
+                    sol = aux;
+                }
+            
+            for (int i = 1; i < 10; i++) {
+                if (!sol.contains(randpos+i) && costeSolucion() < ) {
+                    aux.add(randpos+i);
+                    sol = aux;
+                }
+
+                iteracion++;
+            }
         }
-        
+
         return costeSolucion();
     }
 
     //Funciones auxiliares
     private void generarSolucionAleatoria() {
         for (int i = 0; i < archivo.getTamSolucion(); i++) {
-            sol.add(aleatorio.Randint(0,archivo.getTamMatriz() - 1));
+            sol.add(aleatorio.Randint(0, archivo.getTamMatriz() - 1));
         }
     }
 
