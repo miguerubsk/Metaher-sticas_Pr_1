@@ -5,12 +5,8 @@
  */
 package metaherísticas_pr_1;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import tools.CargaDatos;
-import java.util.Random;
+import tools.*;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -23,7 +19,7 @@ import tools.Timer;
  */
 public class Algoritmos implements Callable<Vector<Integer>> {
 
-    private Random aleatorio;
+    private random aleatorio;
     private CargaDatos archivo;
     private Configurador config;
     private StringBuilder log;
@@ -42,7 +38,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         this.aportes = new Vector<>();
         this.marcados = new Vector<>();
         this.semilla = semilla;
-        aleatorio = new Random(semilla);
+        aleatorio = new random();
+        aleatorio.Set_random(semilla);
         log = new StringBuilder();
         sol = new Vector<Integer>(archivo.getTamSolucion());
         this.algoritmo = algoritmo;
@@ -95,7 +92,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Boolean[] marcados = new Boolean[archivo.getTamMatriz()];
         Arrays.fill(marcados, Boolean.FALSE);
 
-        Integer punto = aleatorio.nextInt(archivo.getTamMatriz() - 1);
+        Integer punto = aleatorio.Randint(0,archivo.getTamMatriz() - 1);
         marcados[punto] = true;
 
         int contador = 1;
@@ -182,7 +179,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     //Funciones auxiliares
     private void generarSolucionAleatoria() {
         for (int i = 0; i < archivo.getTamSolucion(); i++) {
-            sol.add(aleatorio.nextInt(archivo.getTamMatriz()));
+            sol.add(aleatorio.Randint(0,archivo.getTamMatriz() - 1));
         }
     }
 
