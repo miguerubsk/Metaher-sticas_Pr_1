@@ -33,6 +33,12 @@ public class CargaDatos {
                 Matriz = new double[TamMatriz][TamMatriz];
             }
             
+            for (int i = 0; i < TamMatriz; i++) {
+                for (int j = 0; j < TamMatriz; j++) {
+                    Matriz[i][j] = 0;
+                }
+            }
+            
             while((linea = b.readLine()) != null){
                 String[] split = linea.split(" ");
                 Matriz[Integer.parseInt(split[0])][Integer.parseInt(split[1])] = Double.parseDouble(split[2]);
