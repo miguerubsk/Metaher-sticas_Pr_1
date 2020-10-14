@@ -170,6 +170,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     intento++;
                     System.out.println("Intentos: " + intento);
                 }
+                if(intento >= 48)
+                    System.out.println("");
             }
         }
 
@@ -199,14 +201,14 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         return distancia;
     }
 
-    private boolean estaEnLaSolucion(int ele) {
-        for (Integer integer : sol) {
-            if (integer == ele) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    private boolean estaEnLaSolucion(int ele) {
+//        for (Integer integer : sol) {
+//            if (integer == ele) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     private double costeSolucion() {
         double distancia = 0.0;
@@ -224,7 +226,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         int pos = 0;
         double menor = 999999999;
         for (int i = 0; i < aportes.size(); ++i) {
-            if (!(marcados.get(i)) && aportes.get(i) < menor) {
+            if (marcados.get(i) == false && aportes.get(i) < menor) {
                 menor = aportes.get(i);
                 pos = i;
             }
