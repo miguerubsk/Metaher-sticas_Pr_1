@@ -54,13 +54,13 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             case ("Greedy"):
 //                Tiempo.Start();
                 start = System.currentTimeMillis();
-                coste = Greedy();
+//                coste = Greedy();
 //                Tiempo.Stop();
                 stop = System.currentTimeMillis();
                 System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
                         + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString()
-                        + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
-                        + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
+                        + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + /*coste
+                        + */"\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
 
                 break;
             case ("Búsqueda_Local"):
@@ -92,7 +92,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Boolean[] marcados = new Boolean[archivo.getTamMatriz()];
         Arrays.fill(marcados, Boolean.FALSE);
 
-        Integer punto = aleatorio.Randint(0,archivo.getTamMatriz() - 1);
+        Integer punto = aleatorio.Randint(0, archivo.getTamMatriz() - 1);
         marcados[punto] = true;
 
         int contador = 1;
@@ -127,44 +127,49 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         generarSolucionAleatoria();
         double costeActual = costeSolucion();
 
-        for (Integer integer : sol) {
-            aportes.add(costePuntoEnSolucion(integer));
-            marcados.add(false);
-        }
-
         Integer anterior = 0;
         Integer posAporteMenor = 0;
         double costeAnterior = 0;
-        while (iteracion < 50000) {
+        boolean mejora = true;
+        
+        while (iteracion < config.getEvaluaciones() && mejora) {
 //            System.out.println(iteracion);
+            mejora = false;
+            for (Integer integer : sol) {
+                aportes.add(costePuntoEnSolucion(integer));
+                marcados.add(false);
+            }
             posAporteMenor = posicionAporteMenor();
             anterior = sol.get(posAporteMenor);
             costeAnterior = aportes.get(posAporteMenor);
 
             sol.removeElementAt(posAporteMenor);
             aportes.removeElementAt(posAporteMenor);
-
-            for (int i = 0; i < archivo.getTamMatriz(); i++) {
-                if (!sol.contains(i)) {
-                    if (costeAnterior < costePuntoEnSolucion(i)) {
-                        sol.add(i);
-                        aportes.add(costePuntoEnSolucion(i));
-
-                        iteracion++;
-                        break;
+            int intento = 0;
+            while (intento < 50) {
+                for (int i = 0; i < archivo.getTamMatriz(); i++) {
+                    if (!sol.contains(i)) {
+                        if (costeAnterior < costePuntoEnSolucion(i)) {
+                            sol.add(i);
+                            aportes.add(costePuntoEnSolucion(i));
+                            mejora = true;
+                            iteracion++;
+                            System.out.println("Mejoras: " + iteracion);
+                            break;
+                        }
                     }
+
+                    iteracion++;
                 }
 
-                iteracion++;
+                if (sol.size() < archivo.getTamSolucion()) {
+                    sol.add(anterior);
+                    aportes.add(costeAnterior);
+                    intento++;
+                    System.out.println("Intentos: " + intento);
+                }
             }
-            
-            if (sol.size() < archivo.getTamSolucion()) {
-            sol.add(anterior);
-            aportes.add(costeAnterior);
         }
-        }
-
-        
 
         return costeSolucion();
     }
@@ -179,7 +184,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     //Funciones auxiliares
     private void generarSolucionAleatoria() {
         for (int i = 0; i < archivo.getTamSolucion(); i++) {
-            sol.add(aleatorio.Randint(0,archivo.getTamMatriz() - 1));
+            sol.add(aleatorio.Randint(0, archivo.getTamMatriz() - 1));
         }
     }
 
