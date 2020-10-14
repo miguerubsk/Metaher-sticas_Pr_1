@@ -60,7 +60,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
                         + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString()
                         + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + /*coste
-                        + */"\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
+                        + */ "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
 
                 break;
             case ("Búsqueda_Local"):
@@ -131,8 +131,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Integer posAporteMenor = 0;
         double costeAnterior = 0;
         boolean mejora = true;
-        
-        while (iteracion < config.getEvaluaciones() && mejora) {
+
+        while (iteracion < 50000 && mejora) {
 //            System.out.println(iteracion);
             mejora = false;
             for (Integer integer : sol) {
@@ -154,7 +154,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                             aportes.add(costePuntoEnSolucion(i));
                             mejora = true;
                             iteracion++;
-                            System.out.println("Mejoras: " + iteracion);
+                            if (iteracion == 114176) {
+                                System.out.println("Mejoras: " + iteracion);
+                            }
                             break;
                         }
                     }
