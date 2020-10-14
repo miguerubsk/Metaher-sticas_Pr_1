@@ -35,7 +35,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         this.archivo = archivo;
         this.config = config;
         this.cdl = cdl;
-        this.aportes = new Vector<>();
+        this.aportes = new Vector<>(archivo.getTamSolucion());
         this.marcados = new Vector<>();
         this.semilla = semilla;
         aleatorio = new random();
@@ -122,7 +122,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     private double BusquedaLocal() {
-        Integer iteracion = 0;
+        long iteracion = 0;
 
         generarSolucionAleatoria();
         double costeActual = costeSolucion();
@@ -132,9 +132,11 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         double costeAnterior = 0;
         boolean mejora = true;
 
-        while (iteracion < 50000 && mejora) {
+        while (iteracion < config.getEvaluaciones() && mejora) {
 //            System.out.println(iteracion);
             mejora = false;
+            aportes.clear();
+            marcados.clear();
             for (Integer integer : sol) {
                 aportes.add(costePuntoEnSolucion(integer));
                 marcados.add(false);
@@ -154,7 +156,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                             aportes.add(costePuntoEnSolucion(i));
                             mejora = true;
                             iteracion++;
-                            if (iteracion == 114176) {
+                            if (iteracion > 50000) {
                                 System.out.println("Mejoras: " + iteracion);
                             }
                             break;
@@ -164,14 +166,19 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     iteracion++;
                 }
 
+                if (iteracion == 50000) {
+                    System.out.println("Mejoras: " + iteracion);
+                }
                 if (sol.size() < archivo.getTamSolucion()) {
                     sol.add(anterior);
                     aportes.add(costeAnterior);
                     intento++;
                     System.out.println("Intentos: " + intento);
                 }
-                if(intento >= 48)
-                    System.out.println("");
+                
+                if(mejora){
+                    break;
+                }
             }
         }
 
@@ -209,7 +216,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 //        }
 //        return false;
 //    }
-
     private double costeSolucion() {
         double distancia = 0.0;
 
