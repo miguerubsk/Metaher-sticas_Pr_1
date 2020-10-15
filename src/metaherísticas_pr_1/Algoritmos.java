@@ -6,12 +6,12 @@
 package metaherísticas_pr_1;
 
 import java.util.Arrays;
+import java.util.Random;
 import tools.CargaDatos;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import tools.Configurador;
-import tools.Random;
 import tools.Timer;
 
 /**
@@ -41,7 +41,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         this.marcados = new Vector<>();
         this.semilla = semilla;
         aleatorio = new Random();
-        aleatorio.Set_random(semilla);
+//        aleatorio.Set_random(semilla);
         log = new StringBuilder();
         sol = new Vector<Integer>(archivo.getTamSolucion());
         this.algoritmo = algoritmo;
@@ -94,7 +94,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Boolean[] marcados = new Boolean[archivo.getTamMatriz()];
         Arrays.fill(marcados, Boolean.FALSE);
 
-        Integer punto = aleatorio.Randint(0, archivo.getTamMatriz() - 1);
+//        Integer punto = aleatorio.Randint(0, archivo.getTamMatriz() - 1);
+        Integer punto = aleatorio.nextInt(archivo.getTamMatriz());
         marcados[punto] = true;
 
         int contador = 1;
@@ -153,7 +154,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                         aportes.insertElementAt(costePuntoEnSolucion(i), posAporteMenor);
                         mejora = true;
                         iteracion++;
-//                        if (iteracion == 5000) {
+//                        if (iteracion > 50000) {
 //                            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
 //                        }
                         break;
@@ -162,7 +163,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
                 iteracion++;
             }
-//            if (iteracion == 5000) {
+//            if (iteracion > 50000) {
 //                System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
 //            }
             if (mejora) {
@@ -201,7 +202,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
     private void generarSolucionAleatoria() {
         for (int i = 0; i < archivo.getTamSolucion(); i++) {
-            sol.add(aleatorio.Randint(0, archivo.getTamMatriz()));
+//            sol.add(aleatorio.Randint(0, archivo.getTamMatriz()));
+            sol.add(aleatorio.nextInt(archivo.getTamMatriz()));
         }
     }
 
