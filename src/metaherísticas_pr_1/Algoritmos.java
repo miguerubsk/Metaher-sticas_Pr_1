@@ -159,6 +159,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
                 iteracion++;
             }
+            
+            if(mejora){
+                desmarcarElementos();
+            }
 
             if (sol.size() < archivo.getTamSolucion()) {
                 sol.insertElementAt(anterior, posAporteMenor);
@@ -252,5 +256,12 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
     public String getLog() {
         return log.toString();
+    }
+
+    private void desmarcarElementos() {
+        marcados.removeAllElements();
+        for (int i = 0; i < sol.size(); i++) {
+            marcados.add(i, Boolean.FALSE);
+        }
     }
 }
