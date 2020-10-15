@@ -34,6 +34,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     private long semilla;
     Vector<Double> aportes;
     Vector<Boolean> marcados;
+    int contadorMarcados;
 
     public Algoritmos(CargaDatos archivo, CountDownLatch cdl, Long semilla, String algoritmo, Configurador config) {
         this.archivo = archivo;
@@ -134,9 +135,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Integer posAporteMenor = 0;
         double costeAnterior = 0;
         boolean mejora = true;
+        contadorMarcados = 0;
         actualizarCostes();
-        while (iteracion < 50000 && mejora) {
-//            System.out.println(iteracion);
+        while (iteracion < 50000 && mejora && contadorMarcados < sol.size()) {
+//            System.out.println("iteracion: " + iteracion + "\n contadorMarcados:" + contadorMarcados);
             mejora = false;
 
             posAporteMenor = posicionAporteMenor();
@@ -146,21 +148,26 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             sol.removeElementAt(posAporteMenor);
             aportes.removeElementAt(posAporteMenor);
 
-            for (int i = 0; i < archivo.getTamMatriz() && iteracion < 5000; i++) {
+            for (int i = 0; i < archivo.getTamMatriz() && iteracion < 50000; i++) {
                 if (!sol.contains(i)) {
                     if (costeAnterior < costePuntoEnSolucion(i)) {
                         sol.insertElementAt(i, posAporteMenor);
                         aportes.insertElementAt(costePuntoEnSolucion(i), posAporteMenor);
                         mejora = true;
                         iteracion++;
+//                        if (iteracion == 5000) {
+//                            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
+//                        }
                         break;
                     }
                 }
 
                 iteracion++;
             }
-            
-            if(mejora){
+//            if (iteracion == 5000) {
+//                System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
+//            }
+            if (mejora) {
                 desmarcarElementos();
             }
 
@@ -169,6 +176,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 aportes.insertElementAt(costeAnterior, posAporteMenor);
                 marcados.removeElementAt(posAporteMenor);
                 marcados.insertElementAt(Boolean.TRUE, posAporteMenor);
+                contadorMarcados++;
                 mejora = true;
             }
         }
@@ -263,5 +271,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         for (int i = 0; i < sol.size(); i++) {
             marcados.add(i, Boolean.FALSE);
         }
+
+        contadorMarcados = 0;
     }
 }
