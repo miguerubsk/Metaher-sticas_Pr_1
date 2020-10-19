@@ -176,10 +176,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             memC.add(-1);
         }
         
-        Vector<Integer> memL = new Vector<>(archivo.getTamMatriz());
-        for (int i = 0; i < memL.size(); i++) {
-            memL.add(0);
-            
+        Vector<Integer> memL = new Vector<>();
+        for (int i = 0; i < archivo.getTamMatriz(); i++) {
+            memL.add(0);            
         }
         
         
