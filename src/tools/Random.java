@@ -9,7 +9,7 @@ package tools;
  *
  * @author Miguerubsk
  */
-public class Random {
+public class random {
 
     long Seed = 0L;
     static final int MASK = 2147483647;

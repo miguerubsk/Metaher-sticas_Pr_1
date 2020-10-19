@@ -2,3 +2,4 @@ Archivos=GKD-c_1_n500_m50.txt GKD-c_2_n500_m50.txt GKD-c_3_n500_m50.txt SOM-b_11
 Semillas=26522589 65225892 52258926 22589265 25892652
 Algoritmos=Greedy Búsqueda_Local Búsqueda_Tabú
 Evaluaciones=50000
+Tenencia_Tabu=5

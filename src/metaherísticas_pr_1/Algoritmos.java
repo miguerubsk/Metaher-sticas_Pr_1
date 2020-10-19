@@ -10,6 +10,7 @@ import java.util.Random;
 import tools.CargaDatos;
 import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import tools.Configurador;
 import tools.Timer;
@@ -20,14 +21,14 @@ import tools.Timer;
  */
 public class Algoritmos implements Callable<Vector<Integer>> {
 
-    private random aleatorio;
+    private Random aleatorio;
     private CargaDatos archivo;
     private Configurador config;
     private StringBuilder log;
     private CountDownLatch cdl;
     private Vector<Integer> sol;
     private String algoritmo;
-    private Timer tiempo;
+//    private Timer tiempo;
     private long semilla;
     Vector<Double> aportes;
     Vector<Boolean> marcados;
@@ -169,36 +170,19 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
     private double BusquedaTabu() {
         generarSolucionAleatoria();
-        int iteracion = 0;
-        double costeActual = costeSolucion();
-        Vector<Integer> MejorSolucion = sol;
-        int posAporteMenor = 0;
-
-        for (Integer integer : sol) {
-            aportes.add(costePuntoEnSolucion(integer));
-            marcados.add(false);
+        
+        ConcurrentLinkedQueue<Integer> memC = new ConcurrentLinkedQueue<>();
+        for (int i = 0; i < config.getTenencia(); i++) {
+            memC.add(-1);
         }
-
-        while (iteracion < config.getEvaluaciones()) {
-            Vector<Integer> aux = sol;
-            aux.removeElementAt(posicionAporteMenor());
-            aportes.removeElementAt(posicionAporteMenor());
+        
+        Vector<Integer> memL = new Vector<>(archivo.getTamMatriz());
+        for (int i = 0; i < memL.size(); i++) {
+            memL.add(0);
             
-            int randpos = aleatorio.Randint(0, archivo.getTamMatriz()-11);
-            if (!aux.contains(randpos)) {
-                    aux.add(randpos);
-                    sol = aux;
-                }
-            
-            for (int i = 1; i < 10; i++) {
-                if (!sol.contains(randpos+i) && costeSolucion() < ) {
-                    aux.add(randpos+i);
-                    sol = aux;
-                }
-
-                iteracion++;
-            }
         }
+        
+        
 
         return costeSolucion();
     }
