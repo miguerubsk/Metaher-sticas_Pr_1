@@ -10,6 +10,7 @@ import java.util.Random;
 import tools.CargaDatos;
 import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import tools.Configurador;
 //import tools.Random;
@@ -28,7 +29,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     private CountDownLatch cdl;
     private Vector<Integer> sol;
     private String algoritmo;
-    private Timer tiempo;
+//    private Timer tiempo;
     private long semilla;
     Vector<Double> aportes;
     Vector<Boolean> marcados;
@@ -52,10 +53,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     public Vector<Integer> call() throws Exception {
         double coste;
         long start, stop;
-//        System.out.println(archivo.getMatriz().toString());
         switch (algoritmo) {
             case ("Greedy"):
-//                Tiempo.Start();
                 start = System.currentTimeMillis();
                 coste = Greedy();
 //                Tiempo.Stop();
@@ -64,19 +63,18 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                         + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString()
                         + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
                         + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
-
                 break;
+
             case ("Búsqueda_Local"):
-//                Tiempo.Start();
                 start = System.currentTimeMillis();
                 coste = BusquedaLocal();
-//                Tiempo.Stop();
                 stop = System.currentTimeMillis();
                 System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
                         + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda local" + sol.toString()
                         + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste + "\n\n");
 
                 break;
+
             case ("Búsqueda_Tabú"):
 //                BusquedaTabu();
                 System.out.println("metaherísticas_pr_1.Algoritmos.run(): Búsqueda_Tabú" + sol.toString());
@@ -95,11 +93,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Boolean[] marcados = new Boolean[archivo.getTamMatriz()];
         Arrays.fill(marcados, Boolean.FALSE);
 
-//        Integer punto = aleatorio.Randint(0, archivo.getTamMatriz() - 1);
         Integer punto = aleatorio.nextInt(archivo.getTamMatriz());
         marcados[punto] = true;
 
-        int contador = 1;
         sol.add(punto);
 
         for (int i = 1; i < archivo.getTamSolucion(); i++) {
@@ -117,8 +113,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             marcados[punto] = true;
             sol.add(punto);
 
-            contador++;
-
             mayordist = 0.0;
         }
 
@@ -129,7 +123,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Integer iteracion = 0;
 
         generarSolucionAleatoria();
-        double costeActual = costeSolucion();
 
         Integer anterior = 0;
         Integer posAporteMenor = 0;
@@ -138,7 +131,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         contadorMarcados = 0;
         actualizarCostes();
         while (iteracion < config.getEvaluaciones() && mejora && contadorMarcados < sol.size()) {
-//            System.out.println("iteracion: " + iteracion + "\n contadorMarcados:" + contadorMarcados);
             mejora = false;
 
             posAporteMenor = posicionAporteMenor();
@@ -155,6 +147,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                         aportes.insertElementAt(costePuntoEnSolucion(i), posAporteMenor);
                         mejora = true;
                         iteracion++;
+
                         if (iteracion > 50000) {
                             System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
                         }
@@ -164,6 +157,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
                 iteracion++;
             }
+
             if (iteracion > 50000) {
                 System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
             }
@@ -185,10 +179,19 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     private double BusquedaTabu() {
-        //TODO
         generarSolucionAleatoria();
-        throw new UnsupportedOperationException("No soportado.");
-//        return CosteSolución();
+
+        ConcurrentLinkedQueue<Integer> memC = new ConcurrentLinkedQueue<>();
+        for (int i = 0; i < config.getTenencia(); i++) {
+            memC.add(-1);
+        }
+
+        Vector<Integer> memL = new Vector<>();
+        for (int i = 0; i < archivo.getTamMatriz(); i++) {
+            memL.add(0);
+        }
+
+        return costeSolucion();
     }
 
     //Funciones auxiliares
@@ -217,15 +220,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         return distancia;
     }
 
-    private boolean estaEnLaSolucion(int ele) {
-        for (Integer integer : sol) {
-            if (integer == ele) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private double costeSolucion() {
         double distancia = 0.0;
 
@@ -233,6 +227,16 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             for (int j = i + 1; j < sol.size(); j++) {
                 distancia += archivo.getMatriz()[sol.get(i)][sol.get(j)];
             }
+        }
+
+        return distancia;
+    }
+
+    private double CosteSustituto(Vector<Integer> parcial, int punto) {
+        double distancia = 0.0;
+
+        for (int i = 0; i < parcial.size(); i++) {
+            distancia += archivo.getMatriz()[parcial.get(i)][parcial.get(punto)];
         }
 
         return distancia;
@@ -247,19 +251,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 pos = i;
             }
         }
-        return pos;
-    }
-
-    private int posicionAporteMenor2() {
-        int pos = 0;
-        double menor = 999999999;
-        for (int i = 0; i < aportes.size(); ++i) {
-            if (aportes.get(i) < menor) {
-                menor = aportes.get(i);
-                pos = i;
-            }
-        }
-
         return pos;
     }
 

@@ -19,6 +19,7 @@ public class Configurador {
     private ArrayList<String> Ficheros, Algoritmos;
     private ArrayList<Long> Semillas;
     private long Evaluaciones;
+    private int Tenencia;
 
     public Configurador(String ruta) {
         Ficheros = new ArrayList<>();
@@ -55,6 +56,9 @@ public class Configurador {
                     case "Evaluaciones":
                         Evaluaciones = Long.parseLong(split[1]);
                         break;
+                    case "Tenencia_Tabu":
+                        Tenencia = Integer.parseInt(split[1]);
+                        break;
                 }
             }
 
@@ -77,6 +81,10 @@ public class Configurador {
 
     public long getEvaluaciones() {
         return Evaluaciones;
+    }
+
+    public int getTenencia() {
+        return Tenencia;
     }
 
 }
