@@ -120,16 +120,18 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     private double BusquedaLocal() {
+
         Integer iteracion = 0;
-
-        generarSolucionAleatoria();
-
         Integer anterior = 0;
         Integer posAporteMenor = 0;
         double costeAnterior = 0;
         boolean mejora = true;
         contadorMarcados = 0;
+        
+        generarSolucionAleatoria();
+        
         actualizarCostes();
+        
         while (iteracion < config.getEvaluaciones() && mejora && contadorMarcados < sol.size()) {
             mejora = false;
 
