@@ -19,7 +19,7 @@ public class Configurador {
     private ArrayList<String> Ficheros, Algoritmos;
     private ArrayList<Long> Semillas;
     private long Evaluaciones;
-    private int Tenencia;
+    private Integer Tenencia;
 
     public Configurador(String ruta) {
         Ficheros = new ArrayList<>();

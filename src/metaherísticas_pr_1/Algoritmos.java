@@ -33,7 +33,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     private long semilla;
     Vector<Double> aportes;
     Vector<Boolean> marcados;
-    int contadorMarcados;
+    Integer contadorMarcados;
 
     public Algoritmos(CargaDatos archivo, CountDownLatch cdl, Long semilla, String algoritmo, Configurador config) {
         this.archivo = archivo;
@@ -211,7 +211,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         }
     }
 
-    private double costePuntoEnSolucion(int punto) {
+    private double costePuntoEnSolucion(Integer punto) {
         double distancia = 0.0;
         for (int i = 0; i < sol.size(); i++) {
             distancia += archivo.getMatriz()[punto][sol.get(i)];
@@ -232,7 +232,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         return distancia;
     }
 
-    private double CosteSustituto(Vector<Integer> parcial, int punto) {
+    private double CosteSustituto(Vector<Integer> parcial, Integer punto) {
         double distancia = 0.0;
 
         for (int i = 0; i < parcial.size(); i++) {
