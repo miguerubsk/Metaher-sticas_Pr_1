@@ -133,12 +133,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         while (iteracion < config.getEvaluaciones() && mejora && contadorMarcados < sol.size()) {
             mejora = false;
 
-            posAporteMenor = posicionAporteMenor();
-            anterior = sol.get(posAporteMenor);
-            costeAnterior = aportes.get(posAporteMenor);
+            posAporteMenor = obtenerPosicionAporteMenor();
 
-            sol.removeElementAt(posAporteMenor);
-            aportes.removeElementAt(posAporteMenor);
+            guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
+            eliminarPuntoSolucion(posAporteMenor);
 
             for (int i = 0; i < archivo.getTamMatriz() && iteracion < config.getEvaluaciones(); i++) {
                 if (!sol.contains(i)) {
@@ -148,9 +146,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                         mejora = true;
                         iteracion++;
 
-                        if (iteracion > 50000) {
-                            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
-                        }
                         break;
                     }
                 }
@@ -158,20 +153,12 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 iteracion++;
             }
 
-            if (iteracion > 50000) {
-                System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
-            }
             if (mejora) {
                 desmarcarElementos();
             }
 
             if (sol.size() < archivo.getTamSolucion()) {
-                sol.insertElementAt(anterior, posAporteMenor);
-                aportes.insertElementAt(costeAnterior, posAporteMenor);
-                marcados.removeElementAt(posAporteMenor);
-                marcados.insertElementAt(Boolean.TRUE, posAporteMenor);
-                contadorMarcados++;
-                mejora = true;
+                restablecerSolucionAnterior(anterior, posAporteMenor, costeAnterior, mejora);
             }
         }
 
@@ -195,6 +182,25 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     //Funciones auxiliares
+    private void restablecerSolucionAnterior(Integer anterior, Integer posAporteMenor, double costeAnterior, boolean mejora) {
+        sol.insertElementAt(anterior, posAporteMenor);
+        aportes.insertElementAt(costeAnterior, posAporteMenor);
+        marcados.removeElementAt(posAporteMenor);
+        marcados.insertElementAt(Boolean.TRUE, posAporteMenor);
+        contadorMarcados++;
+        mejora = true;
+    }
+
+    private void guardarSolucionAnterior(Integer anterior, double costeAnterior, Integer posAporteMenor) {
+        anterior = sol.get(posAporteMenor);
+        costeAnterior = aportes.get(posAporteMenor);
+    }
+
+    private void eliminarPuntoSolucion(Integer posAporteMenor) {
+        sol.removeElementAt(posAporteMenor);
+        aportes.removeElementAt(posAporteMenor);
+    }
+
     private void actualizarCostes() {
         aportes.removeAllElements();
         marcados.removeAllElements();
@@ -242,7 +248,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         return distancia;
     }
 
-    private int posicionAporteMenor() {
+    private int obtenerPosicionAporteMenor() {
         int pos = 0;
         double menor = 999999999;
         for (int i = 0; i < aportes.size(); ++i) {
