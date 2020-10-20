@@ -12,6 +12,7 @@ import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import tools.Configurador;
+//import tools.Random;
 import tools.Timer;
 
 /**
@@ -56,13 +57,13 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             case ("Greedy"):
 //                Tiempo.Start();
                 start = System.currentTimeMillis();
-//                coste = Greedy();
+                coste = Greedy();
 //                Tiempo.Stop();
                 stop = System.currentTimeMillis();
-//                System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-//                        + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString()
-//                        + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
-//                        + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
+                System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
+                        + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString()
+                        + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
+                        + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
 
                 break;
             case ("Búsqueda_Local"):
@@ -136,7 +137,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         boolean mejora = true;
         contadorMarcados = 0;
         actualizarCostes();
-        while (iteracion < 50000 && mejora && contadorMarcados < sol.size()) {
+        while (iteracion < config.getEvaluaciones() && mejora && contadorMarcados < sol.size()) {
 //            System.out.println("iteracion: " + iteracion + "\n contadorMarcados:" + contadorMarcados);
             mejora = false;
 
@@ -147,25 +148,25 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             sol.removeElementAt(posAporteMenor);
             aportes.removeElementAt(posAporteMenor);
 
-            for (int i = 0; i < archivo.getTamMatriz() && iteracion < 50000; i++) {
+            for (int i = 0; i < archivo.getTamMatriz() && iteracion < config.getEvaluaciones(); i++) {
                 if (!sol.contains(i)) {
                     if (costeAnterior < costePuntoEnSolucion(i)) {
                         sol.insertElementAt(i, posAporteMenor);
                         aportes.insertElementAt(costePuntoEnSolucion(i), posAporteMenor);
                         mejora = true;
                         iteracion++;
-//                        if (iteracion > 50000) {
-//                            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
-//                        }
+                        if (iteracion > 50000) {
+                            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
+                        }
                         break;
                     }
                 }
 
                 iteracion++;
             }
-//            if (iteracion > 50000) {
-//                System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
-//            }
+            if (iteracion > 50000) {
+                System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal()");
+            }
             if (mejora) {
                 desmarcarElementos();
             }
