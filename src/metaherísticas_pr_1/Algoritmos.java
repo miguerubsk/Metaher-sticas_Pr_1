@@ -127,11 +127,11 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         double costeAnterior = 0;
         boolean mejora = true;
         contadorMarcados = 0;
-        
+
         generarSolucionAleatoria();
-        
+
         actualizarCostes();
-        
+
         while (iteracion < config.getEvaluaciones() && mejora && contadorMarcados < sol.size()) {
             mejora = false;
 
@@ -178,6 +178,23 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Vector<Integer> memL = new Vector<>();
         for (int i = 0; i < archivo.getTamMatriz(); i++) {
             memL.add(0);
+        }
+
+        Integer iteracion = 0;
+        Integer anterior = 0;
+        Integer posAporteMenor = 0;
+        double costeAnterior = 0;
+        boolean mejora = true;
+        contadorMarcados = 0;
+        
+        while (iteracion < 50000) {
+            Integer[] soluciones = null;
+            posAporteMenor = obtenerPosicionAporteMenor();
+
+            guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
+            eliminarPuntoSolucion(posAporteMenor);
+            generarSoluciones(10, soluciones);
+
         }
 
         return costeSolucion();
@@ -273,5 +290,12 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         }
 
         contadorMarcados = 0;
+    }
+
+    private void generarSoluciones(int cuantas, Integer[] soluciones) {
+        soluciones = new Integer[cuantas];
+        for (int i = 0; i < cuantas; i++) {
+            soluciones[i] = aleatorio.nextInt(archivo.getTamMatriz());
+        }
     }
 }
