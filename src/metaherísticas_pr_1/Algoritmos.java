@@ -20,13 +20,12 @@ import tools.Timer;
  *
  * @author Miguerubsk
  */
-public class Algoritmos implements Callable<Vector<Integer>> {
+public class Algoritmos {
 
     private Random aleatorio;
     private CargaDatos archivo;
     private Configurador config;
     private StringBuilder log;
-    private CountDownLatch cdl;
     private Vector<Integer> sol;
     private String algoritmo;
 //    private Timer tiempo;
@@ -35,10 +34,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     Vector<Boolean> marcados;
     Integer contadorMarcados;
 
-    public Algoritmos(CargaDatos archivo, CountDownLatch cdl, Long semilla, String algoritmo, Configurador config) {
+    public Algoritmos(CargaDatos archivo, Long semilla, String algoritmo, Configurador config) {
         this.archivo = archivo;
         this.config = config;
-        this.cdl = cdl;
         this.aportes = new Vector<>();
         this.marcados = new Vector<>();
         this.semilla = semilla;
@@ -49,7 +47,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         this.algoritmo = algoritmo;
     }
 
-    @Override
     public Vector<Integer> call() throws Exception {
         double coste;
         long start, stop;
@@ -81,7 +78,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
                 break;
         }
-        cdl.countDown();
 
         return sol;
     }
@@ -188,15 +184,15 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         double costeAnterior = 0;
         boolean mejora = true;
         contadorMarcados = 0;
-        
+
         while (iteracion < 50000) {
             Integer[] soluciones = null;
-            
+
             posAporteMenor = obtenerPosicionAporteMenor();
             costeAnterior = costeSolucion();
             eliminarPuntoSolucion(posAporteMenor);
             memC.add(sol.get(posAporteMenor));
-            
+
             generarSoluciones(numVecinos, soluciones);
             for (int i = 0; i < numVecinos; i++) {
                 sol.insertElementAt(i, posAporteMenor);
@@ -205,8 +201,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
             guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
             eliminarPuntoSolucion(posAporteMenor);
-            
-            
 
         }
 

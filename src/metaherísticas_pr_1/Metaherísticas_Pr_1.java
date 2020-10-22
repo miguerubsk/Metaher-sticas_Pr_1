@@ -38,23 +38,18 @@ public class Metaherísticas_Pr_1 {
             Datos.add(new CargaDatos(config.getFicheros().get(i)));
         }
 
-        ExecutorService ejecutor = Executors.newCachedThreadPool();
-
         for (int i = 0; i < config.getAlgoritmos().size(); i++) {
             for (int j = 0; j < Datos.size(); j++) {
                 try {
-                    ArrayList<Algoritmos> m = new ArrayList();
-                    ArrayList<Future<Vector<Integer>>> futures = new ArrayList<>();
-                    CountDownLatch cdl = new CountDownLatch(config.getSemillas().size());
+                    ArrayList<Algoritmos> listaAlgoritmos = new ArrayList();
+                    Vector<Vector<Integer>> soluciones = new Vector<>();
                     for (int k = 0; k < config.getSemillas().size(); k++) {
-                        Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k), config.getAlgoritmos().get(i), config);
-                        m.add(meta);
-                        Future<Vector<Integer>> ejecucion = ejecutor.submit(meta);
-                        futures.add(ejecucion);
+                        Algoritmos meta = new Algoritmos(Datos.get(j), config.getSemillas().get(k), config.getAlgoritmos().get(i), config);
+                        soluciones.add(meta.call());
+                        listaAlgoritmos.add(meta);
                     }
-                    cdl.await();
-                    for (int k = 0; k < m.size(); k++) {
-                        GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", futures.get(k).get().toString());
+                    for (int k = 0; k < listaAlgoritmos.size(); k++) {
+                        GuardarArchivo("log/" + config.getAlgoritmos().get(i) + "_" + Datos.get(j) + config.getSemillas().get(k) + ".txt", soluciones.get(k).toString());
                     }
 
                 } catch (UnsupportedOperationException ex) {
@@ -65,7 +60,6 @@ public class Metaherísticas_Pr_1 {
             }
 
         }
-        ejecutor.shutdown();
         System.out.println("TERMINADO");
     }
 
