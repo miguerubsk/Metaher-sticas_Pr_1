@@ -7,14 +7,14 @@ package metaherísticas_pr_1;
 
 import tools.*;
 import java.util.ArrayList;
-import java.util.HashSet;
+//import java.util.HashSet;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+//import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static tools.GuardarArchivos.GuardarArchivo;
@@ -66,6 +66,9 @@ public class Metaherísticas_Pr_1 {
 
         }
         ejecutor.shutdown();
+        random aleatorio = new random();
+        aleatorio.Set_random(648967463);
+        System.out.println(aleatorio.Randint(0, 500));
         System.out.println("TERMINADO");
     }
 

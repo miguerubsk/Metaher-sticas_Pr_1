@@ -13,8 +13,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import tools.Configurador;
+import tools.random;
 //import tools.Random;
-import tools.Timer;
+//import tools.Timer;
 
 /**
  *
@@ -22,7 +23,7 @@ import tools.Timer;
  */
 public class Algoritmos implements Callable<Vector<Integer>> {
 
-    private Random aleatorio;
+    private random aleatorio;
     private CargaDatos archivo;
     private Configurador config;
     private StringBuilder log;
@@ -42,8 +43,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         this.aportes = new Vector<>();
         this.marcados = new Vector<>();
         this.semilla = semilla;
-        aleatorio = new Random();
-//        aleatorio.Set_random(semilla);
+        aleatorio = new random();
+        aleatorio.Set_random(semilla);
         log = new StringBuilder();
         sol = new Vector<Integer>(archivo.getTamSolucion());
         this.algoritmo = algoritmo;
@@ -93,7 +94,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Boolean[] marcados = new Boolean[archivo.getTamMatriz()];
         Arrays.fill(marcados, Boolean.FALSE);
 
-        Integer punto = aleatorio.nextInt(archivo.getTamMatriz());
+        Integer punto = aleatorio.Randint(0,archivo.getTamMatriz());
         marcados[punto] = true;
 
         sol.add(punto);
@@ -176,35 +177,44 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             memC.add(-1);
         }
 
-        Vector<Integer> memL = new Vector<>();
+        Integer[] memL = new Integer[archivo.getTamMatriz()];
         for (int i = 0; i < archivo.getTamMatriz(); i++) {
-            memL.add(0);
+            memL[i] = 0;
+            if(sol.contains(i)){
+               memL[i]++;
+            }
         }
 
         Integer iteracion = 0;
         Integer anterior = 0;
         Integer posAporteMenor = 0;
         Integer numVecinos = 10;
-        double costeAnterior = 0;
-        boolean mejora = true;
+        double costeAnterior;
+//        boolean mejora = true;
         contadorMarcados = 0;
+        Vector<Integer> SolucionActual = sol, SolucionParcial = null;
+        double costeActual = coste(SolucionActual);
         
-        while (iteracion < 50000) {
-            Integer[] soluciones = null;
+        while (iteracion < config.getEvaluaciones()) {
+            Vector<Integer> soluciones = null;
             
             posAporteMenor = obtenerPosicionAporteMenor();
             costeAnterior = costeSolucion();
-            eliminarPuntoSolucion(posAporteMenor);
-            memC.add(sol.get(posAporteMenor));
+//            eliminarPuntoSolucion(posAporteMenor);
+            memC.offer(sol.get(posAporteMenor));
+            memC.poll();
+            SolucionParcial = SolucionActual;
             
-            generarSoluciones(numVecinos, soluciones);
+            generarSoluciones(numVecinos, soluciones, memC);
+            SolucionParcial.remove(posAporteMenor);
             for (int i = 0; i < numVecinos; i++) {
-                sol.insertElementAt(i, posAporteMenor);
-                actualizarCostes();
+                
+                SolucionParcial.add(soluciones.get(i));
+                
             }
 
-            guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
-            eliminarPuntoSolucion(posAporteMenor);
+//            guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
+//            eliminarPuntoSolucion(posAporteMenor);
             
             
 
@@ -245,7 +255,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     private void generarSolucionAleatoria() {
         for (int i = 0; i < archivo.getTamSolucion(); i++) {
 //            sol.add(aleatorio.Randint(0, archivo.getTamMatriz()));
-            sol.add(aleatorio.nextInt(archivo.getTamMatriz()));
+            sol.add(aleatorio.Randint(0, archivo.getTamMatriz()));
         }
     }
 
@@ -264,6 +274,18 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         for (int i = 0; i < sol.size(); i++) {
             for (int j = i + 1; j < sol.size(); j++) {
                 distancia += archivo.getMatriz()[sol.get(i)][sol.get(j)];
+            }
+        }
+
+        return distancia;
+    }
+    
+    private double coste(Vector<Integer> soli) {
+        double distancia = 0.0;
+
+        for (int i = 0; i < soli.size(); i++) {
+            for (int j = i + 1; j < soli.size(); j++) {
+                distancia += archivo.getMatriz()[soli.get(i)][soli.get(j)];
             }
         }
 
@@ -305,10 +327,14 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         contadorMarcados = 0;
     }
 
-    private void generarSoluciones(int cuantas, Integer[] soluciones) {
-        soluciones = new Integer[cuantas];
-        for (int i = 0; i < cuantas; i++) {
-            soluciones[i] = aleatorio.nextInt(archivo.getTamMatriz());
+    private void generarSoluciones(int cuantas, Vector<Integer> soluciones, ConcurrentLinkedQueue memC) {
+        soluciones = new Vector<Integer>();
+        while (cuantas > 0) {
+            int vecino = aleatorio.Randint(0, archivo.getTamMatriz());
+            if(!memC.contains(vecino) && !sol.contains(vecino)){
+                soluciones.add(vecino);
+                cuantas--;
+            }
         }
     }
 }
