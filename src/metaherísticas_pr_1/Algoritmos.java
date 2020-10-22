@@ -197,7 +197,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             Vector<Integer> soluciones = null;
             double costeActual = 0.0;
             posAporteMenor = obtenerPosicionAporteMenor();
-            int elemento;
+            int elemento = 0;
 //            costeAnterior = costeSolucion();
 //            eliminarPuntoSolucion(posAporteMenor);
             memC.offer(sol.get(posAporteMenor));
@@ -214,6 +214,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 }
             }
             SolucionActual.set(posAporteMenor, elemento);
+            
+            if(costeSolucion() < coste(SolucionActual)){
+                sol = SolucionActual;
+            }
 
 //            guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
 //            eliminarPuntoSolucion(posAporteMenor);
