@@ -169,6 +169,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
     private double BusquedaTabu() {
         generarSolucionAleatoria();
+        actualizarCostes();
 
         ConcurrentLinkedQueue<Integer> memC = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < config.getTenencia(); i++) {
@@ -183,17 +184,29 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Integer iteracion = 0;
         Integer anterior = 0;
         Integer posAporteMenor = 0;
+        Integer numVecinos = 10;
         double costeAnterior = 0;
         boolean mejora = true;
         contadorMarcados = 0;
         
         while (iteracion < 50000) {
             Integer[] soluciones = null;
+            
             posAporteMenor = obtenerPosicionAporteMenor();
+            costeAnterior = costeSolucion();
+            eliminarPuntoSolucion(posAporteMenor);
+            memC.add(sol.get(posAporteMenor));
+            
+            generarSoluciones(numVecinos, soluciones);
+            for (int i = 0; i < numVecinos; i++) {
+                sol.insertElementAt(i, posAporteMenor);
+                actualizarCostes();
+            }
 
             guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
             eliminarPuntoSolucion(posAporteMenor);
-            generarSoluciones(10, soluciones);
+            
+            
 
         }
 
