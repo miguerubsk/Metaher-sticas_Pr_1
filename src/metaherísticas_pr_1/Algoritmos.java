@@ -192,6 +192,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 //        boolean mejora = true;
         contadorMarcados = 0;
         Vector<Integer> SolucionActual = sol, SolucionParcial = null;
+        int contadorReinicio = 0;
         
         while (iteracion < config.getEvaluaciones()) {
             Vector<Integer> soluciones = null;
@@ -214,15 +215,20 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 }
             }
             SolucionActual.set(posAporteMenor, elemento);
+            iteracion++;
             
             if(costeSolucion() < coste(SolucionActual)){
                 sol = SolucionActual;
+                contadorReinicio = 0;
+            }else{
+                contadorReinicio++;
             }
 
 //            guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
 //            eliminarPuntoSolucion(posAporteMenor);
             
-            
+            if(contadorReinicio == 100) 
+                reinicioBTabu();
 
         }
 
@@ -237,6 +243,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         marcados.insertElementAt(Boolean.TRUE, posAporteMenor);
         contadorMarcados++;
         mejora = true;
+    }
+    
+    private void reinicioBTabu(){
+        //TODO
     }
 
     private void guardarSolucionAnterior(Integer anterior, double costeAnterior, Integer posAporteMenor) {
