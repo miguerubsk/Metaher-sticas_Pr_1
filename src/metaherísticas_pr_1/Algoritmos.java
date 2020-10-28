@@ -121,49 +121,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     private double BusquedaLocal() {
-
-        Integer iteracion = 0;
-        Integer anterior = 0;
-        Integer posAporteMenor = 0;
-        double costeAnterior = 0;
-        boolean mejora = true;
-        contadorMarcados = 0;
-
+        
         generarSolucionAleatoria();
 
-        actualizarCostes(sol);
-
-        while (iteracion < config.getEvaluaciones() && mejora && contadorMarcados < sol.size()) {
-            mejora = false;
-
-            posAporteMenor = obtenerPosicionAporteMenor();
-
-            guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
-            eliminarPuntoSolucion(posAporteMenor);
-
-            for (int i = 0; i < archivo.getTamMatriz() && iteracion < config.getEvaluaciones(); i++) {
-                if (!sol.contains(i)) {
-                    if (costeAnterior < costePuntoEnSolucion(i)) {
-                        sol.insertElementAt(i, posAporteMenor);
-                        aportes.insertElementAt(costePuntoEnSolucion(i), posAporteMenor);
-                        mejora = true;
-                        iteracion++;
-
-                        break;
-                    }
-                }
-
-                iteracion++;
-            }
-
-            if (mejora) {
-                desmarcarElementos();
-            }
-
-            if (sol.size() < archivo.getTamSolucion()) {
-                restablecerSolucionAnterior(anterior, posAporteMenor, costeAnterior, mejora);
-            }
-        }
+        double costeActual = costeSolucion();
 
         return costeSolucion();
     }
@@ -226,13 +187,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 contadorReinicio++;
             }
 
-//            guardarSolucionAnterior(anterior, costeAnterior, posAporteMenor);
-//            eliminarPuntoSolucion(posAporteMenor);
-            if (contadorReinicio == 84 && iteracion > 13000) {
-//                System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu() qqqqqqqqqqqqqqqqqq" + iteracion + " " + contadorReinicio);
-            }
-            if (contadorReinicio >= 100) {
-//                System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu() reinicio" + iteracion + " " + contadorReinicio);
+            if (contadorReinicio == 100) {
                 reinicioBTabu(memC, memL, SolucionActual, contadorReinicio);
                 contadorReinicio = 0;
             }
