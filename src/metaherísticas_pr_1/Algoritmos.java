@@ -21,44 +21,37 @@ import tools.Configurador;
  */
 public class Algoritmos implements Callable<Vector<Integer>> {
 
-    private Random aleatorio;
-    private CargaDatos archivo;
-    private Configurador config;
-    private StringBuilder log;
-    private CountDownLatch cdl;
-    private Vector<Integer> sol;
     private String algoritmo;
-//    private Timer tiempo;
-    private long semilla;
-    Vector<Double> aportes;
-    Vector<Boolean> marcados;
-    Integer contadorMarcados;
+    private CargaDatos archivo;
+    private CountDownLatch cdl;
+    private Configurador config;
+    private Long semilla;
+    private Random aleatorio;
+
+    private Vector<Integer> solucion;
 
     public Algoritmos(CargaDatos archivo, CountDownLatch cdl, Long semilla, String algoritmo, Configurador config) {
         this.archivo = archivo;
-        this.config = config;
         this.cdl = cdl;
-        this.aportes = new Vector<>();
-        this.marcados = new Vector<>();
         this.semilla = semilla;
-        aleatorio = new Random(semilla);
-//        aleatorio.Set_random(semilla);
-        log = new StringBuilder();
-        sol = new Vector<Integer>(archivo.getTamSolucion());
         this.algoritmo = algoritmo;
+        this.config = config;
+        this.aleatorio = new Random(semilla);
+
+        this.solucion = new Vector<Integer>();
     }
 
     @Override
     public Vector<Integer> call() throws Exception {
-        double coste;
+        double coste = 0.0;
         long start, stop;
         switch (algoritmo) {
             case ("Greedy"):
                 start = System.currentTimeMillis();
-                coste = Greedy();
+//                coste = Greedy();
                 stop = System.currentTimeMillis();
                 System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-                        + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + sol.toString()
+                        + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + solucion.toString()
                         + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
                         + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
                 break;
@@ -68,23 +61,23 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 coste = BusquedaLocal();
                 stop = System.currentTimeMillis();
                 System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-                        + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda local" + sol.toString()
+                        + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda local" + solucion.toString()
                         + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste + "\n\n");
 
                 break;
 
             case ("Búsqueda_Tabú"):
                 start = System.currentTimeMillis();
-                coste = BusquedaTabu();
+//                coste = BusquedaTabu();
                 stop = System.currentTimeMillis();
                 System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-                        + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda local" + sol.toString()
+                        + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda tabu" + solucion.toString()
                         + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste + "\n\n");
                 break;
         }
         cdl.countDown();
 
-        return sol;
+        return solucion;
     }
 
     //Algoritmos
@@ -97,283 +90,193 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Integer punto = aleatorio.nextInt(archivo.getTamMatriz());
         marcados[punto] = true;
 
-        sol.add(punto);
+        solucion.add(punto);
 
         for (int i = 1; i < archivo.getTamSolucion(); i++) {
             double d = 0.0;
+
             for (int j = 0; j < archivo.getTamMatriz(); j++) {
                 if (!marcados[j]) {
                     d = costePuntoEnSolucion(j);
+
                     if (d > mayordist) {
                         mayordist = d;
                         punto = j;
                     }
+
                     d = 0.0;
                 }
             }
+
             marcados[punto] = true;
-            sol.add(punto);
+            solucion.add(punto);
 
             mayordist = 0.0;
         }
 
-        return costeSolucion();
+        return coste(archivo.getMatriz(), archivo.getTamSolucion());
     }
 
     private double BusquedaLocal() {
+        Integer tamañoSolucion = archivo.getTamSolucion();
+        double[][] matriz = archivo.getMatriz();
+        Integer tamañoMatriz = archivo.getTamMatriz();
+        Integer numIteraciones = config.getEvaluaciones();
 
-        generarSolucionAleatoria();
-        double costeActual = costeSolucion();
-        double C;
-        int evalua = 0;
-        int pos;
+        generarSolucionAleatoria(tamañoSolucion, tamañoMatriz);
+        double CosteActual = coste(matriz, tamañoSolucion);
 
-        boolean mejora = Boolean.TRUE;
+        double NuevoCoste;
+        Vector<Double> aportes = new Vector<>();
+        Vector<Boolean> seleccionados = new Vector<>();
 
-        while (evalua < config.getEvaluaciones() && mejora) {
-            mejora = Boolean.FALSE;
-            for (int i = 0; i < archivo.getTamSolucion(); i++) {
-                marcados.add(Boolean.FALSE);
-            }
-            actualizarCostes(sol);
-
-            for (int k = 0; k < archivo.getTamSolucion(); k++) {
-                pos = obtenerPosicionAporteMenor();
-
-                for (int i = 0; i < archivo.getTamMatriz(); i++) {
-                    if (!sol.contains(i)) {
-                        C = FactorCoste(costeActual, sol.get(pos), i);
-                        evalua++;
-                        if (costeActual < C) {
-                            sol.set(pos, i);
-                            costeActual = C;
-                            mejora = Boolean.TRUE;
-                        }
-                    }
-
-                }
-                if (mejora) {
-                    break;
-                }
-            }
-            marcados.clear();
-            aportes.clear();
-        }
-
-        return costeSolucion();
-    }
-
-    private double BusquedaTabu() {
-        generarSolucionAleatoria();
-
-        ConcurrentLinkedQueue<Integer> memC = new ConcurrentLinkedQueue<>();
-        for (int i = 0; i < config.getTenencia(); i++) {
-            memC.add(-1);
-        }
-
-        Integer[] memL = new Integer[archivo.getTamMatriz()];
-        for (int i = 0; i < archivo.getTamMatriz(); i++) {
-            memL[i] = 0;
-            if (sol.contains(i)) {
-                memL[i]++;
-            }
+        for (int i = 0; i < tamañoSolucion; i++) {
+            aportes.add(0.0);
+            seleccionados.add(false);
         }
 
         Integer iteracion = 0;
-//        Integer anterior = 0;
-        Integer posAporteMenor = 0;
-        Integer numVecinos = 10;
-//        double costeAnterior;
-//        boolean mejora = true;
-        contadorMarcados = 0;
-        Vector<Integer> SolucionActual = sol, SolucionParcial = null;
-        int contadorReinicio = 0;
+        Integer posicion;
+        boolean mejora = true;
 
-        while (iteracion < config.getEvaluaciones()) {
-//            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu() " + iteracion + " " + contadorReinicio);
-            Vector<Integer> soluciones = new Vector<Integer>();
-            double costeActual = 0.0;
-            actualizarCostes(SolucionActual);
-            posAporteMenor = obtenerPosicionAporteMenor();
-            int elemento = 0;
-//            costeAnterior = costeSolucion();
-//            eliminarPuntoSolucion(posAporteMenor);
-            memC.poll();
-            memC.offer(SolucionActual.get(posAporteMenor));
+        while (iteracion < numIteraciones && mejora) {
 
-//            SolucionParcial = SolucionActual;
-            generarSoluciones(numVecinos, soluciones, SolucionActual, memC);
+            mejora = false;
 
-            for (int i = 0; i < numVecinos; i++) {
-                SolucionActual.set(posAporteMenor, soluciones.get(i));
-                if (costeActual < coste(SolucionActual)) {
-                    costeActual = coste(SolucionActual);
-                    elemento = soluciones.get(i);
+            actualizarVectorAportes(matriz, aportes, tamañoSolucion);
+
+            for (int k = 0; k < tamañoSolucion && iteracion < numIteraciones; k++) {
+
+                posicion = obtenerPosicionAporteMenor(aportes, seleccionados);
+
+                for (int i = 0; i < tamañoMatriz && !mejora && iteracion < numIteraciones; i++) {
+                    if (!solucionContiene(i)) {
+                        NuevoCoste = factorizacion(matriz, tamañoSolucion, CosteActual, solucion.get(posicion), i);
+                        iteracion++;
+//                        System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal(): " + evaluacion + " / " + numEvaluaciones);
+
+                        if (CosteActual < NuevoCoste) {
+                            intercambia(posicion, i);
+
+                            CosteActual = NuevoCoste;
+                            mejora = true;
+                        }
+                    }
+                }
+                
+                if (mejora) {
+                    
+                    break;
                 }
             }
-            SolucionActual.set(posAporteMenor, elemento);
-            iteracion++;
 
-            if (costeSolucion() < coste(SolucionActual)) {
-                sol = SolucionActual;
-                contadorReinicio = 0;
-            } else {
-                contadorReinicio++;
+            seleccionados.clear();
+            aportes.clear();
+
+            for (int i = 0; i < tamañoSolucion; i++) {
+                aportes.add(0.0);
+                seleccionados.add(false);
             }
-
-            if (contadorReinicio == 100) {
-                reinicioBTabu(memC, memL, SolucionActual, contadorReinicio);
-                contadorReinicio = 0;
-            }
-
         }
 
-        return costeSolucion();
+        return CosteActual;
     }
 
     //Funciones auxiliares
-//    private void restablecerSolucionAnterior(Integer anterior, Integer posAporteMenor, double costeAnterior, boolean mejora) {
-//        sol.insertElementAt(anterior, posAporteMenor);
-//        aportes.insertElementAt(costeAnterior, posAporteMenor);
-//        marcados.removeElementAt(posAporteMenor);
-//        marcados.insertElementAt(Boolean.TRUE, posAporteMenor);
-//        contadorMarcados++;
-//        mejora = true;
-//    }
-
-    private void reinicioBTabu(ConcurrentLinkedQueue<Integer> memC, Integer[] memL, Vector<Integer> SolucionActual, int contadorReinicio) {
-        if (aleatorio.nextInt(2) == 1) {
-            SolucionActual.removeAllElements();
-            Integer elemento = 0;
-            for (int i = 0; i < archivo.getTamSolucion(); i++) {
-                int mayor = 0;
-                for (int j = 0; j < archivo.getTamMatriz(); j++) {
-                    if (memL[j] > mayor && !SolucionActual.contains(j)) {
-                        elemento = j;
-                    }
-
-                }
-                SolucionActual.add(elemento);
-            }
-        } else {
-            SolucionActual.removeAllElements();
-            Integer elemento = 0;
-            for (int i = 0; i < archivo.getTamSolucion(); i++) {
-                int mayor = 999999999;
-                for (int j = 0; j < archivo.getTamMatriz(); j++) {
-                    if (memL[j] < mayor && !SolucionActual.contains(j)) {
-                        elemento = j;
-                    }
-
-                }
-                SolucionActual.add(elemento);
-            }
-
-        }
-        memC.clear();
-
-        for (int i = 0; i < config.getTenencia(); i++) {
-            memC.add(-1);
-        }
-
-        contadorReinicio = 0;
-    }
-
-//    private void guardarSolucionAnterior(Integer anterior, double costeAnterior, Integer posAporteMenor) {
-//        anterior = sol.get(posAporteMenor);
-//        costeAnterior = aportes.get(posAporteMenor);
-//    }
-
-//    private void eliminarPuntoSolucion(Integer posAporteMenor) {
-//        sol.removeElementAt(posAporteMenor);
-//        aportes.removeElementAt(posAporteMenor);
-//    }
-
-    private void actualizarCostes(Vector<Integer> SolucionActual) {
-        aportes.removeAllElements();
-        marcados.removeAllElements();
-        for (Integer integer : SolucionActual) {
-            aportes.add(costePuntoEnSolucion(integer));
-            marcados.add(false);
-        }
-    }
-
-    private void generarSolucionAleatoria() {
-        for (int i = 0; i < archivo.getTamSolucion(); i++) {
-//            sol.add(aleatorio.Randint(0, archivo.getTamMatriz()));
-            sol.add(aleatorio.nextInt(archivo.getTamMatriz()));
-        }
-    }
-
     private double costePuntoEnSolucion(Integer punto) {
         double distancia = 0.0;
-        for (int i = 0; i < sol.size(); i++) {
-            distancia += archivo.getMatriz()[punto][sol.get(i)];
+
+        for (int i = 0; i < solucion.size(); i++) {
+            distancia += archivo.getMatriz()[punto][solucion.get(i)];
         }
 
         return distancia;
     }
 
-    private double costeSolucion() {
-        double distancia = 0.0;
+    private double coste(double[][] matriz, Integer tamañoSolucion) {
+        double coste = 0.0;
 
-        for (int i = 0; i < sol.size(); i++) {
-            for (int j = i + 1; j < sol.size(); j++) {
-                distancia += archivo.getMatriz()[sol.get(i)][sol.get(j)];
+        for (int i = 0; i < tamañoSolucion - 1; i++) {
+            for (int j = i + 1; j < tamañoSolucion; j++) {
+                coste += matriz[solucion.get(i)][solucion.get(j)];
             }
         }
 
-        return distancia;
+        return coste;
     }
 
-    private double coste(Vector<Integer> soli) {
-        double distancia = 0.0;
+    private double factorizacion(double[][] matriz, int tamañoSolucion, double costeActual, int ele1, int ele2) {
+        double costeResta = 0.0;
+        double costeSuma = 0.0;
 
-        for (int i = 0; i < soli.size(); i++) {
-            for (int j = i + 1; j < soli.size(); j++) {
-                distancia += archivo.getMatriz()[soli.get(i)][soli.get(j)];
+        for (int k = 0; k < tamañoSolucion; k++) {
+
+            if (solucion.get(k) != ele1) {
+                costeResta += matriz[ele1][solucion.get(k)];
+            }
+
+            if (solucion.get(k) != ele1) {
+                costeSuma += matriz[ele2][solucion.get(k)];
             }
         }
 
-        return distancia;
+        return costeActual - costeResta + costeSuma;
     }
 
-    private double FactorCoste(double CosteActual, int i, int j) {
-        double costeMenor = 0.0, costeMayor = 0.0;
+    private void actualizarVectorAportes(double[][] matriz, Vector<Double> aportes, Integer tamañoSolucion) {
 
-        for (int k = 0; k < archivo.getTamSolucion(); k++) {
-            if (sol.get(k) != i) {
-                costeMenor += archivo.getMatriz()[i][sol.get(k)];
+        for (int i = 0; i < tamañoSolucion; i++) {
+            double aporte = 0.0;
+
+            for (int j = 0; j < tamañoSolucion; j++) {
+                if (solucion.get(i) != solucion.get(j)) {
+                    aporte += matriz[solucion.get(i)][solucion.get(j)];
+                }
             }
-            if (sol.get(k) != i) {
-                costeMayor += archivo.getMatriz()[j][i];
-            }
+
+            aportes.setElementAt(aporte, i);
         }
-        return CosteActual - costeMenor + costeMayor;
     }
 
-    private int obtenerPosicionAporteMenor() {
-        int pos = 0;
+    private Integer obtenerPosicionAporteMenor(Vector<Double> aportes, Vector<Boolean> marcados) {
+        Integer posicionAporteMenor = 0;
         double menor = 999999999;
-        for (int i = 0; i < aportes.size(); ++i) {
-            if (!(marcados.get(i)) && aportes.get(i) < menor) {
+
+        for (int i = 0; i < aportes.size(); i++) {
+            if ((!marcados.get(i) && aportes.get(i) < menor)) {
                 menor = aportes.get(i);
-                pos = i;
+                posicionAporteMenor = i;
             }
         }
-        return pos;
+
+        marcados.setElementAt(Boolean.TRUE, posicionAporteMenor);
+
+        return posicionAporteMenor;
     }
 
-    public String getLog() {
-        return log.toString();
+    private boolean solucionContiene(Integer cual) {
+        for (int i = 0; i < solucion.size(); i++) {
+            if (cual == solucion.get(i)) {
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    private void generarSoluciones(Integer cuantas, Vector<Integer> soluciones, Vector<Integer> SolucionActual, ConcurrentLinkedQueue memC) {
-        while (cuantas > 0) {
-            int vecino = aleatorio.nextInt(archivo.getTamMatriz());
-            if (!memC.contains(vecino) && !SolucionActual.contains(vecino)) {
-                soluciones.add(vecino);
-                cuantas--;
+    private void intercambia(int i, int j) {
+        solucion.setElementAt(j, i);
+    }
+
+    private void generarSolucionAleatoria(int tamañoSolucion, int tamañoMatriz) {
+        Integer generados = 0;
+
+        while (generados < tamañoSolucion) {
+            Integer elemento = aleatorio.nextInt(tamañoMatriz - 1);
+            if (!solucionContiene(elemento)) {
+                solucion.add(elemento);
+                generados++;
             }
         }
     }
