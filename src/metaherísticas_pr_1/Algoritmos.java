@@ -125,8 +125,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         generarSolucionAleatoria(tamañoSolucion, tamañoMatriz);
         double CosteActual = coste(matriz, tamañoSolucion);
-
         double NuevoCoste;
+        
         Vector<Double> aportes = new Vector<>();
         Vector<Boolean> seleccionados = new Vector<>();
 
