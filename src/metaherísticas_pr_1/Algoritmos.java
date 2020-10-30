@@ -152,20 +152,21 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 for (int i = 0; i < tamañoMatriz && !mejora && iteracion < numIteraciones; i++) {
                     if (!solucionContiene(i)) {
                         NuevoCoste = factorizacion(matriz, tamañoSolucion, CosteActual, solucion.get(posicion), i);
-                        iteracion++;
-//                        System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal(): " + evaluacion + " / " + numEvaluaciones);
 
-                        if (CosteActual < NuevoCoste) {
+//                        System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaLocal(): " + evaluacion + " / " + numEvaluaciones);
+                        if (NuevoCoste > CosteActual) {
                             intercambia(posicion, i);
 
                             CosteActual = NuevoCoste;
                             mejora = true;
                         }
+
+                        iteracion++;
                     }
                 }
-                
+
                 if (mejora) {
-                    
+
                     break;
                 }
             }
