@@ -45,8 +45,8 @@ public class Metaherísticas_Pr_1 {
                 try {
                     ArrayList<Algoritmos> m = new ArrayList();
                     ArrayList<Future<Vector<Integer>>> futures = new ArrayList<>();
-                    CountDownLatch cdl = new CountDownLatch(config.getSemillas().size());
-                    for (int k = 0; k < config.getSemillas().size(); k++) {
+                    CountDownLatch cdl = new CountDownLatch(1);
+                    for (int k = 0; k < 1; k++) {
                         Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k), config.getAlgoritmos().get(i), config);
                         m.add(meta);
                         Future<Vector<Integer>> ejecucion = ejecutor.submit(meta);
@@ -66,9 +66,7 @@ public class Metaherísticas_Pr_1 {
 
         }
         ejecutor.shutdown();
-        random aleatorio = new random();
-        aleatorio.Set_random(648967463);
-        System.out.println(aleatorio.Randint(0, 500));
+        
         System.out.println("TERMINADO");
     }
 

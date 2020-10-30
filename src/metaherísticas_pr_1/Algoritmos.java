@@ -374,8 +374,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         double costeF;
         double costeMejorSolucion;
         double costeSolucionActual;
-        double costeParcial;
-        Vector<Integer> Parcial = null;
+        double costeSolucionParcial;
+        Vector<Integer> solucionParcial = null;
         Vector<Integer> mejorSolucion = null;
 
         generarSolucionAleatoria(archivo.getTamSolucion(), archivo.getTamMatriz());
@@ -398,24 +398,20 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             memoriaLargoPlazo.add(i);
         }
 
-        while (evaluacion < config.getEvaluaciones()) {
+        while (evaluacion < 50000) {
 //            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu(): " + evaluacion );
 
-            if (evaluacion == 49999) {
-                System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu(): " + evaluacion);
-            }
-
             int numVecinos = 10;
-            
+
             posicion = menorAporte(archivo.getTamSolucion(), archivo.getMatriz());
-            
+
             marcados.clear();
             for (int i = 0; i < archivo.getTamMatriz(); i++) {
                 marcados.add(Boolean.FALSE);
             }
 
             int elementoAnterior = solucion.get(posicion);
-            costeParcial = 0;
+            costeSolucionParcial = 0;
 
             while (numVecinos > 0) {
                 int vecino;
@@ -437,27 +433,25 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
                         costeF = factorizacion(archivo.getMatriz(), archivo.getTamSolucion(), costeSolucionActual, elementoAnterior, vecino);
                         numVecinos--;
-                        if (costeParcial < costeF) {
+                        if (costeSolucionParcial < costeF) {
 
-                            costeParcial = costeF;
-                            Parcial = solucion;
-                            intercambia(Parcial, posicion, vecino);
+                            costeSolucionParcial = costeF;
+                            solucionParcial = solucion;
+                            intercambia(solucionParcial, posicion, vecino);
                         }
                     }
 
                 }
             }
 
-            solucion = Parcial;
-            costeSolucionActual = costeParcial;
+            solucion = solucionParcial;
+            costeSolucionActual = costeSolucionParcial;
             evaluacion++;
 
             listaTabu.offer(elementoAnterior);
             listaTabu.remove();
 
-            for (int i = 0; i < archivo.getTamSolucion(); i++) {
-                memoriaLargoPlazo.set(solucion.get(i), memoriaLargoPlazo.get(solucion.get(i)) + 1);
-            }
+            actualizarMemoriaLargoPlazo(memoriaLargoPlazo);
 
             if (costeSolucionActual > costeMejorSolucion) {
                 costeMejorSolucion = costeSolucionActual;
@@ -484,7 +478,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 for (int i = 0; i < archivo.getTamMatriz(); i++) {
                     memoriaLargoPlazo.add(0);
                 }
-                           
+
                 listaTabu.clear();
                 for (int i = 0; i < config.getTenencia(); i++) {
                     listaTabu.add(-1);
@@ -502,11 +496,17 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         double tirada = aleatorio.nextInt(2);
 
         if (tirada <= 0.5) {
-            
+
             return calculaVectorMasFrecuentes(memoriaLargoPlazo, archivo.getTamMatriz(), archivo.getTamSolucion());
         } else {
-            
+
             return calculaVectorMenosFrecuentes(memoriaLargoPlazo, archivo.getTamMatriz(), archivo.getTamSolucion());
+        }
+    }
+
+    private void actualizarMemoriaLargoPlazo(Vector<Integer> memoriaLargoPlazo) {
+        for (int i = 0; i < archivo.getTamSolucion(); i++) {
+            memoriaLargoPlazo.set(solucion.get(i), memoriaLargoPlazo.get(solucion.get(i)) + 1);
         }
     }
 }
