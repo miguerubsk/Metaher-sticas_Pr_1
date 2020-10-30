@@ -299,9 +299,14 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     private void generarSolucionAleatoria() {
-        for (int i = 0; i < archivo.getTamSolucion(); i++) {
-//            sol.add(aleatorio.Randint(0, archivo.getTamMatriz()));
-            sol.add(aleatorio.nextInt(archivo.getTamMatriz()));
+        int contador = 0;
+        while(contador < archivo.getTamSolucion()){
+            int ele = aleatorio.nextInt(archivo.getTamMatriz());
+            if(!sol.contains(ele)){
+                sol.add(ele);
+                contador++;
+            }
+                
         }
     }
 
