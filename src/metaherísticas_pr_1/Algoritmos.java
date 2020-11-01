@@ -74,7 +74,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 stop = System.currentTimeMillis();
                 System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
                         + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda tabu" + solucion.toString()
-                        + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste + "\n\n");
+                        + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste + "\nTamaño Solución: " + solucion.size() + "\n\n");
                 break;
         }
         cdl.countDown();
@@ -185,6 +185,139 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         return CosteActual;
     }
 
+    private double BusquedaTabu() {
+
+        Integer evaluacion = 0;
+        Integer contadorReinicializacion = 0;
+        Integer posicion;
+        double costeF;
+        double costeMejorSolucion;
+        double costeSolucionActual;
+        double costeSolucionParcial;
+        Vector<Integer> solucionParcial = null;
+        Vector<Integer> mejorSolucion = null;
+        Vector<Integer> solucionActual = null;
+
+        generarSolucionAleatoria(archivo.getTamSolucion(), archivo.getTamMatriz());
+        mejorSolucion = solucion;
+        solucionActual = mejorSolucion;
+
+        Vector<Boolean> marcados = new Vector<>();
+        for (int i = 0; i < archivo.getTamMatriz(); i++) {
+            marcados.add(Boolean.FALSE);
+        }
+
+        costeMejorSolucion = coste(archivo.getMatriz(), archivo.getTamSolucion(), mejorSolucion);
+        costeSolucionActual = costeMejorSolucion;
+
+        ConcurrentLinkedQueue<Integer> listaTabu = new ConcurrentLinkedQueue<>();
+        for (int i = 0; i < config.getTenencia(); i++) {
+            listaTabu.offer(-1);
+        }
+
+        Vector<Integer> memoriaLargoPlazo = new Vector<>();
+        for (int i = 0; i < archivo.getTamMatriz(); i++) {
+            memoriaLargoPlazo.add(i);
+        }
+
+        while (evaluacion < 50000) {
+//            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu(): " + evaluacion );
+
+            if (evaluacion == 55) {
+                System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu()");
+            }
+
+            int numVecinos = 10;
+
+            posicion = menorAporte(archivo.getTamSolucion(), archivo.getMatriz(), solucionActual);
+
+            marcados.clear();
+            for (int i = 0; i < archivo.getTamMatriz(); i++) {
+                marcados.add(Boolean.FALSE);
+            }
+
+            int elementoAnterior = solucionActual.get(posicion);
+            costeSolucionParcial = 0;
+
+            while (numVecinos > 0) {
+                int vecino;
+                do {
+                    vecino = aleatorio.nextInt(archivo.getTamMatriz());
+                } while (marcados.get(vecino));
+                marcados.set(vecino, Boolean.TRUE);
+                if (!solucionContiene(solucionActual, vecino)) {
+
+                    boolean tabu = false;
+                    for (Integer integer : listaTabu) {
+                        if (integer == vecino) {
+                            tabu = true;
+                            break;
+                        }
+                    }
+
+                    if (!tabu) {
+
+                        costeF = factorizacion(archivo.getMatriz(), archivo.getTamSolucion(), costeSolucionActual, elementoAnterior, vecino, solucionActual);
+                        numVecinos--;
+                        if (costeSolucionParcial < costeF) {
+
+                            costeSolucionParcial = costeF;
+                            solucionParcial = solucion;
+                            intercambia(solucionParcial, posicion, vecino);
+                        }
+                    }
+                }
+            }
+
+            solucionActual = solucionParcial;
+            costeSolucionActual = costeSolucionParcial;
+            evaluacion++;
+
+            listaTabu.offer(elementoAnterior);
+            listaTabu.remove();
+
+            actualizarMemoriaLargoPlazo(memoriaLargoPlazo, solucionActual);
+
+            if (costeSolucionActual > costeMejorSolucion) {
+                costeMejorSolucion = costeSolucionActual;
+                mejorSolucion = solucionActual;
+
+                contadorReinicializacion = 0;
+            } else {
+                contadorReinicializacion++;
+            }
+
+            if (contadorReinicializacion == 100) {
+                contadorReinicializacion = 0;
+
+                solucionActual = reiniciar(memoriaLargoPlazo);
+
+                costeSolucionActual = coste(archivo.getMatriz(), archivo.getTamSolucion(), solucionActual);
+
+                if (costeSolucionActual > costeMejorSolucion) {
+                    costeMejorSolucion = costeSolucionActual;
+                    mejorSolucion = solucionActual;
+                }
+
+                memoriaLargoPlazo.clear();
+                for (int i = 0; i < archivo.getTamMatriz(); i++) {
+                    memoriaLargoPlazo.add(0);
+                }
+
+                listaTabu.clear();
+                for (int i = 0; i < config.getTenencia(); i++) {
+                    listaTabu.add(-1);
+                }
+
+                evaluacion++;
+            }
+
+        }
+        solucion = mejorSolucion;
+        
+        return coste(archivo.getMatriz(), archivo.getTamSolucion());
+    }
+
     //Funciones auxiliares
     private double costePuntoEnSolucion(Integer punto) {
         double distancia = 0.0;
@@ -208,6 +341,18 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         return coste;
     }
 
+    private double coste(double[][] matriz, Integer tamañoSolucion, Vector<Integer> vector) {
+        double coste = 0.0;
+
+        for (int i = 0; i < tamañoSolucion; i++) {
+            for (int j = i + 1; j < tamañoSolucion; j++) {
+                coste += matriz[vector.get(j)][vector.get(i)];
+            }
+        }
+
+        return coste;
+    }
+
     private double factorizacion(double[][] matriz, int tamañoSolucion, double costeActual, int ele1, int ele2) {
         double costeResta = 0.0;
         double costeSuma = 0.0;
@@ -220,6 +365,24 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
             if (solucion.get(k) != ele1) {
                 costeSuma += matriz[ele2][solucion.get(k)];
+            }
+        }
+
+        return costeActual - costeResta + costeSuma;
+    }
+
+    private double factorizacion(double[][] matriz, int tamañoSolucion, double costeActual, int ele1, int ele2, Vector<Integer> vector) {
+        double costeResta = 0.0;
+        double costeSuma = 0.0;
+
+        for (int k = 0; k < tamañoSolucion; k++) {
+
+            if (solucion.get(k) != ele1) {
+                costeResta += matriz[ele1][vector.get(k)];
+            }
+
+            if (solucion.get(k) != ele1) {
+                costeSuma += matriz[ele2][vector.get(k)];
             }
         }
 
@@ -268,6 +431,17 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         return false;
     }
 
+    private boolean solucionContiene(Vector<Integer> vector, Integer cual) {
+        for (int i = 0; i < vector.size(); i++) {
+            if (cual == vector.get(i)) {
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private boolean vectorContiene(Vector<Integer> vector, Integer cual) {
         for (int i = 0; i < vector.size(); i++) {
             if (cual == vector.get(i)) {
@@ -291,7 +465,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Integer generados = 0;
 
         while (generados < tamañoSolucion) {
-            Integer elemento = aleatorio.nextInt(tamañoMatriz - 1);
+            Integer elemento = aleatorio.nextInt(tamañoMatriz);
             if (!solucionContiene(elemento)) {
                 solucion.add(elemento);
                 generados++;
@@ -307,6 +481,27 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             for (int j = 0; j < m; j++) {
                 if (solucion.get(i) != solucion.get(j)) {
                     peso += dist[solucion.get(i)][solucion.get(j)];
+                }
+            }
+
+            if (peso < menor) {
+                menor = peso;
+                posMenor = i;
+            }
+            peso = 0.0;
+        }
+
+        return posMenor;
+    }
+
+    private Integer menorAporte(int m, double[][] dist, Vector<Integer> vector) {
+        double peso = 0.0;
+        Integer posMenor = 0;
+        double menor = 999999999;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < m; j++) {
+                if (solucion.get(i) != solucion.get(j)) {
+                    peso += dist[vector.get(i)][vector.get(j)];
                 }
             }
 
@@ -360,136 +555,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             }
 
             menosFrecuentes.add(posicion);
-            memoriaLargoPlazo.set(posicion, 0);
+            memoriaLargoPlazo.set(posicion, 1000000000);
         }
 
         return menosFrecuentes;
-    }
-
-    private double BusquedaTabu() {
-
-        Integer evaluacion = 0;
-        Integer contadorReinicializacion = 0;
-        Integer posicion;
-        double costeF;
-        double costeMejorSolucion;
-        double costeSolucionActual;
-        double costeSolucionParcial;
-        Vector<Integer> solucionParcial = null;
-        Vector<Integer> mejorSolucion = null;
-
-        generarSolucionAleatoria(archivo.getTamSolucion(), archivo.getTamMatriz());
-
-        Vector<Boolean> marcados = new Vector<>();
-        for (int i = 0; i < archivo.getTamMatriz(); i++) {
-            marcados.add(Boolean.FALSE);
-        }
-
-        costeMejorSolucion = coste(archivo.getMatriz(), archivo.getTamSolucion());
-        costeSolucionActual = costeMejorSolucion;
-
-        ConcurrentLinkedQueue<Integer> listaTabu = new ConcurrentLinkedQueue<>();
-        for (int i = 0; i < config.getTenencia(); i++) {
-            listaTabu.offer(-1);
-        }
-
-        Vector<Integer> memoriaLargoPlazo = new Vector<>();
-        for (int i = 0; i < archivo.getTamMatriz(); i++) {
-            memoriaLargoPlazo.add(i);
-        }
-
-        while (evaluacion < 50000) {
-//            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu(): " + evaluacion );
-
-            int numVecinos = 10;
-
-            posicion = menorAporte(archivo.getTamSolucion(), archivo.getMatriz());
-
-            marcados.clear();
-            for (int i = 0; i < archivo.getTamMatriz(); i++) {
-                marcados.add(Boolean.FALSE);
-            }
-
-            int elementoAnterior = solucion.get(posicion);
-            costeSolucionParcial = 0;
-
-            while (numVecinos > 0) {
-                int vecino;
-                do {
-                    vecino = aleatorio.nextInt(archivo.getTamMatriz() - 1);
-                } while (marcados.get(vecino));
-                marcados.set(vecino, Boolean.TRUE);
-                if (!solucionContiene(vecino)) {
-
-                    boolean tabu = false;
-                    for (Integer integer : listaTabu) {
-                        if (integer == vecino) {
-                            tabu = true;
-                            break;
-                        }
-                    }
-
-                    if (!tabu) {
-
-                        costeF = factorizacion(archivo.getMatriz(), archivo.getTamSolucion(), costeSolucionActual, elementoAnterior, vecino);
-                        numVecinos--;
-                        if (costeSolucionParcial < costeF) {
-
-                            costeSolucionParcial = costeF;
-                            solucionParcial = solucion;
-                            intercambia(solucionParcial, posicion, vecino);
-                        }
-                    }
-
-                }
-            }
-
-            solucion = solucionParcial;
-            costeSolucionActual = costeSolucionParcial;
-            evaluacion++;
-
-            listaTabu.offer(elementoAnterior);
-            listaTabu.remove();
-
-            actualizarMemoriaLargoPlazo(memoriaLargoPlazo);
-
-            if (costeSolucionActual > costeMejorSolucion) {
-                costeMejorSolucion = costeSolucionActual;
-                mejorSolucion = solucion;
-
-                contadorReinicializacion = 0;
-            } else {
-                contadorReinicializacion++;
-            }
-
-            if (contadorReinicializacion == 100) {
-                contadorReinicializacion = 0;
-
-                solucion = reiniciar(memoriaLargoPlazo);
-
-                costeSolucionActual = coste(archivo.getMatriz(), archivo.getTamSolucion());
-
-                if (costeSolucionActual > costeMejorSolucion) {
-                    costeMejorSolucion = costeSolucionActual;
-                    mejorSolucion = solucion;
-                }
-
-                memoriaLargoPlazo.clear();
-                for (int i = 0; i < archivo.getTamMatriz(); i++) {
-                    memoriaLargoPlazo.add(0);
-                }
-
-                listaTabu.clear();
-                for (int i = 0; i < config.getTenencia(); i++) {
-                    listaTabu.add(-1);
-                }
-
-                evaluacion++;
-            }
-
-        }
-        solucion = mejorSolucion;
-        return coste(archivo.getMatriz(), archivo.getTamSolucion());
     }
 
     private Vector<Integer> reiniciar(Vector<Integer> memoriaLargoPlazo) {
@@ -504,9 +573,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         }
     }
 
-    private void actualizarMemoriaLargoPlazo(Vector<Integer> memoriaLargoPlazo) {
+    private void actualizarMemoriaLargoPlazo(Vector<Integer> memoriaLargoPlazo, Vector<Integer> vector) {
         for (int i = 0; i < archivo.getTamSolucion(); i++) {
-            memoriaLargoPlazo.set(solucion.get(i), memoriaLargoPlazo.get(solucion.get(i)) + 1);
+            memoriaLargoPlazo.set(vector.get(i), memoriaLargoPlazo.get(vector.get(i)) + 1);
         }
     }
 }
