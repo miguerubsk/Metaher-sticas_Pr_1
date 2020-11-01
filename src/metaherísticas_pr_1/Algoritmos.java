@@ -217,7 +217,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         Vector<Integer> memoriaLargoPlazo = new Vector<>();
         for (int i = 0; i < archivo.getTamMatriz(); i++) {
-            memoriaLargoPlazo.add(i);
+            memoriaLargoPlazo.add(0);
         }
 
         while (evaluacion < 50000) {
@@ -245,7 +245,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     vecino = aleatorio.nextInt(archivo.getTamMatriz());
                 } while (marcados.get(vecino));
                 marcados.set(vecino, Boolean.TRUE);
-                if (!solucionContiene(solucionActual, vecino)) {
+                if (!solucionActual.contains(vecino)) {
 
                     boolean tabu = false;
                     for (Integer integer : listaTabu) {
@@ -473,26 +473,26 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         }
     }
 
-    private Integer menorAporte(int m, double[][] dist) {
-        double peso = 0.0;
-        Integer posMenor = 0;
-        double menor = 999999999;
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < m; j++) {
-                if (solucion.get(i) != solucion.get(j)) {
-                    peso += dist[solucion.get(i)][solucion.get(j)];
-                }
-            }
-
-            if (peso < menor) {
-                menor = peso;
-                posMenor = i;
-            }
-            peso = 0.0;
-        }
-
-        return posMenor;
-    }
+//    private Integer menorAporte(int m, double[][] dist) {
+//        double peso = 0.0;
+//        Integer posMenor = 0;
+//        double menor = 999999999;
+//        for (int i = 0; i < m; i++) {
+//            for (int j = 0; j < m; j++) {
+//                if (solucion.get(i) != solucion.get(j)) {
+//                    peso += dist[solucion.get(i)][solucion.get(j)];
+//                }
+//            }
+//
+//            if (peso < menor) {
+//                menor = peso;
+//                posMenor = i;
+//            }
+//            peso = 0.0;
+//        }
+//
+//        return posMenor;
+//    }
 
     private Integer menorAporte(int m, double[][] dist, Vector<Integer> vector) {
         double peso = 0.0;
@@ -518,6 +518,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     private Vector<Integer> calculaVectorMasFrecuentes(Vector<Integer> memoriaLargoPlazo, int tamañoMatriz, int tamañoSolucion) {
 
         Vector<Integer> masFrecuentes = new Vector<>();
+        Vector<Integer> memoriaLargoPlazoBis = memoriaLargoPlazo;
 
         for (int i = 0; i < tamañoSolucion; i++) {
             Integer mayor = -1;
@@ -525,14 +526,14 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
             for (int j = 0; j < tamañoMatriz; j++) {
 
-                if (memoriaLargoPlazo.get(j) > mayor && !vectorContiene(masFrecuentes, j)) {
-                    mayor = memoriaLargoPlazo.get(j);
+                if (memoriaLargoPlazoBis.get(j) > mayor && !masFrecuentes.contains(j)) {
+                    mayor = memoriaLargoPlazoBis.get(j);
                     posicion = j;
                 }
             }
 
             masFrecuentes.add(posicion);
-            memoriaLargoPlazo.set(posicion, 0);
+            memoriaLargoPlazoBis.set(posicion, 0);
         }
 
         return masFrecuentes;
@@ -541,6 +542,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     private Vector<Integer> calculaVectorMenosFrecuentes(Vector<Integer> memoriaLargoPlazo, int tamañoMatriz, int tamañoSolucion) {
 
         Vector<Integer> menosFrecuentes = new Vector<>();
+        Vector<Integer> memoriaLargoPlazoBis = memoriaLargoPlazo;
 
         for (int i = 0; i < tamañoSolucion; i++) {
             Integer menor = 999999999;
@@ -548,14 +550,14 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
             for (int j = 0; j < tamañoMatriz; j++) {
 
-                if (memoriaLargoPlazo.get(j) < menor && !vectorContiene(menosFrecuentes, j)) {
-                    menor = memoriaLargoPlazo.get(j);
+                if (memoriaLargoPlazoBis.get(j) < menor && !menosFrecuentes.contains(j)) {
+                    menor = memoriaLargoPlazoBis.get(j);
                     posicion = j;
                 }
             }
 
             menosFrecuentes.add(posicion);
-            memoriaLargoPlazo.set(posicion, 1000000000);
+            memoriaLargoPlazoBis.set(posicion, 1000000000);
         }
 
         return menosFrecuentes;
