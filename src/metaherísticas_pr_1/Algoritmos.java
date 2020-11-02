@@ -231,9 +231,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             while (evaluacion < 50000) {
 //            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu(): " + evaluacion);
 
-                if (evaluacion == 1034) {
-                    System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu()");
-                }
+//                if (evaluacion == 1034) {
+//                    System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu()");
+//                }
                 
                 int numVecinos = 10;
 
@@ -299,10 +299,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     contadorReinicializacion = 0;
 
                     solucionActual = reiniciar(memoriaLargoPlazo);
-
-                    if (evaluacion == 1035) {
-                        System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu()");
-                    }
 
                     costeSolucionActual = coste(archivo.getMatriz(), archivo.getTamSolucion(), solucionActual);
 
