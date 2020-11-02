@@ -45,8 +45,8 @@ public class Metaherísticas_Pr_1 {
                 try {
                     ArrayList<Algoritmos> m = new ArrayList();
                     ArrayList<Future<Vector<Integer>>> futures = new ArrayList<>();
-                    CountDownLatch cdl = new CountDownLatch(1);
-                    for (int k = 0; k < 1; k++) {
+                    CountDownLatch cdl = new CountDownLatch(config.getAlgoritmos().size());
+                    for (int k = 0; k < config.getAlgoritmos().size(); k++) {
                         Algoritmos meta = new Algoritmos(Datos.get(j), cdl, config.getSemillas().get(k), config.getAlgoritmos().get(i), config);
                         m.add(meta);
                         Future<Vector<Integer>> ejecucion = ejecutor.submit(meta);

@@ -6,6 +6,7 @@
 package metaherísticas_pr_1;
 
 import java.util.Arrays;
+import java.util.Collections;
 import static java.util.Collections.list;
 import java.util.LinkedList;
 import java.util.Random;
@@ -72,6 +73,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 start = System.currentTimeMillis();
                 coste = BusquedaTabu();
                 stop = System.currentTimeMillis();
+                Collections.sort(solucion);
                 System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
                         + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda tabu" + solucion.toString()
                         + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste + "\nTamaño Solución: " + solucion.size() + "\n\n");
@@ -223,7 +225,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         while (evaluacion < 50000) {
 //            System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu(): " + evaluacion );
 
-            if (evaluacion == 55) {
+            if (evaluacion == 1034) {
                 System.out.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu()");
             }
 
@@ -519,21 +521,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         Vector<Integer> masFrecuentes = new Vector<>();
         Vector<Integer> memoriaLargoPlazoBis = memoriaLargoPlazo;
+        Collections.sort(memoriaLargoPlazoBis);
 
-        for (int i = 0; i < tamañoSolucion; i++) {
-            Integer mayor = -1;
-            Integer posicion = null;
-
-            for (int j = 0; j < tamañoMatriz; j++) {
-
-                if (memoriaLargoPlazoBis.get(j) > mayor && !masFrecuentes.contains(j)) {
-                    mayor = memoriaLargoPlazoBis.get(j);
-                    posicion = j;
-                }
-            }
-
-            masFrecuentes.add(posicion);
-            memoriaLargoPlazoBis.set(posicion, 0);
+        for (int i = tamañoMatriz - 1; i > (tamañoMatriz - tamañoSolucion) - 1; i--) {
+            masFrecuentes.add(memoriaLargoPlazoBis.get(i));
         }
 
         return masFrecuentes;
@@ -543,21 +534,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         Vector<Integer> menosFrecuentes = new Vector<>();
         Vector<Integer> memoriaLargoPlazoBis = memoriaLargoPlazo;
+        Collections.sort(memoriaLargoPlazoBis);
 
         for (int i = 0; i < tamañoSolucion; i++) {
-            Integer menor = 999999999;
-            Integer posicion = null;
-
-            for (int j = 0; j < tamañoMatriz; j++) {
-
-                if (memoriaLargoPlazoBis.get(j) < menor && !menosFrecuentes.contains(j)) {
-                    menor = memoriaLargoPlazoBis.get(j);
-                    posicion = j;
-                }
-            }
-
-            menosFrecuentes.add(posicion);
-            memoriaLargoPlazoBis.set(posicion, 1000000000);
+            menosFrecuentes.add(memoriaLargoPlazoBis.get(i));
         }
 
         return menosFrecuentes;
