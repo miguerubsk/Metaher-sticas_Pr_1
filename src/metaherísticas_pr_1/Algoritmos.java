@@ -425,7 +425,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     private Vector<Integer> calculaVectorMasFrecuentes(Vector<Integer> memoriaLargoPlazo, int tamañoMatriz, int tamañoSolucion) {
 
         Vector<Integer> masFrecuentes = new Vector<>();
-        Vector<Integer> memoriaLargoPlazoBis = memoriaLargoPlazo;
 
         for (int i = 0; i < tamañoSolucion; i++) {
             Integer mayorFrecuencia = -1;
@@ -448,7 +447,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     private Vector<Integer> calculaVectorMenosFrecuentes(Vector<Integer> memoriaLargoPlazo, int tamañoMatriz, int tamañoSolucion) {
 
         Vector<Integer> menosFrecuentes = new Vector<>();
-        Vector<Integer> memoriaLargoPlazoBis = memoriaLargoPlazo;
 
         for (int i = 0; i < tamañoSolucion; i++) {
             Integer menorFrecuencia = 999999999;
