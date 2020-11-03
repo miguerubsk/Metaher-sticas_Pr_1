@@ -14,7 +14,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import tools.Configurador;
-//import tools.random;
 
 /**
  *
@@ -53,7 +52,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     coste = Greedy();
                     stop = System.currentTimeMillis();
                     System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-                            + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): greedy" + solucion.toString()
+                            + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): "+ algoritmo + solucion.toString()
                             + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
                             + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
                     break;
@@ -63,9 +62,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     coste = BusquedaLocal();
                     stop = System.currentTimeMillis();
                     System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-                            + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda local" + solucion.toString()
-                            + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste + "\n\n");
-
+                            + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): "+ algoritmo + solucion.toString()
+                            + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
+                            + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
                     break;
 
                 case ("Búsqueda_Tabú"):
@@ -74,8 +73,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     stop = System.currentTimeMillis();
                     Collections.sort(solucion);
                     System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-                            + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): busqueda tabu" + solucion.toString()
-                            + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste + "\nTamaño Solución: " + solucion.size() + "\n\n");
+                            + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): "+ algoritmo + solucion.toString()
+                            + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
+                            + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
                     break;
             }
 
