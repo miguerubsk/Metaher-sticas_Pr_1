@@ -40,7 +40,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         this.solucion = new Vector<Integer>();
     }
-
+    
+    
     @Override
     public Vector<Integer> call() throws Exception {
         try {
@@ -89,6 +90,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     //Algoritmos
+    
+    /**
+     * @brief Función que ejecuta el algoritmo Greedy
+     */
     private double Greedy() {
         double mayordist = 0.0;
 
@@ -126,7 +131,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     /**
-     * @brief Función que ejecuta el algoritmo Búsqueda Local
+     * @brief Función que ejecuta el algoritmo Búsqueda Local del primer mejor
      */
     private double BusquedaLocal() {
         Integer tamañoSolucion = archivo.getTamSolucion();
@@ -559,6 +564,11 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         return menosFrecuentes;
     }
 
+    /**
+     * @brief Función que realiza el reinicio de la busqueda tabu
+     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se repite un elemento a lo largo de las iteraciones
+     * @return vector solucion de tamaño m elementos con la nueva solucion
+     */
     private Vector<Integer> reiniciar(Vector<Integer> memoriaLargoPlazo) {
         double tirada = aleatorio.nextInt(2);
 
@@ -660,6 +670,11 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         return solucionParcial;
     }
 
+    /**
+     * @brief Funcion que reiniciar las memorias de la busqueda tabu
+     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se repite un elemento a lo largo de las iteraciones
+     * @param listaTabu lista de elementos tabu
+     */
     private void reiniciarMemorias(Vector<Integer> memoriaLargoPlazo, ConcurrentLinkedQueue<Integer> listaTabu) {
         memoriaLargoPlazo.clear();
         for (int i = 0; i < archivo.getTamMatriz(); i++) {
