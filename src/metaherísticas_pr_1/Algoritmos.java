@@ -40,49 +40,44 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         this.solucion = new Vector<Integer>();
     }
-    
-    
+
     @Override
-    public Vector<Integer> call() throws Exception {
+    public Vector<Integer> call() {
+        double coste = 0.0;
+        long start = 0, stop = 0;
         try {
-            double coste = 0.0;
-            long start, stop;
+            start = System.currentTimeMillis();
             switch (algoritmo) {
                 case ("Greedy"):
-                    start = System.currentTimeMillis();
+
                     coste = Greedy();
-                    stop = System.currentTimeMillis();
-                    System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-                            + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): "+ algoritmo + solucion.toString()
-                            + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
-                            + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
+
                     break;
 
                 case ("Búsqueda_Local"):
-                    start = System.currentTimeMillis();
                     coste = BusquedaLocal();
-                    stop = System.currentTimeMillis();
-                    System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-                            + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): "+ algoritmo + solucion.toString()
-                            + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
-                            + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
                     break;
 
                 case ("Búsqueda_Tabú"):
-                    start = System.currentTimeMillis();
                     coste = BusquedaTabu();
-                    stop = System.currentTimeMillis();
-                    Collections.sort(solucion);
-                    System.out.println("Archivo: " + archivo.getNombreFichero() + "\nSemilla: "
-                            + semilla + "\nmetaherísticas_pr_1.Algoritmos.run(): "+ algoritmo + solucion.toString()
-                            + "\nTiempo: " + ((stop - start)) + " ms" + "\nCoste Solución: " + coste
-                            + "\nDatos: " + archivo.getTamMatriz() + ";" + archivo.getTamSolucion() + "\n\n");
+
                     break;
             }
 
         } catch (Exception e) {
-            System.err.println("metaherísticas_pr_1.Algoritmos.call(): excepcion: " + e.getMessage() + e.toString() + e.getLocalizedMessage());
+            System.err.println("metaherísticas_pr_1.Algoritmos.call(): excepcion capturada: " + e.toString());
         } finally {
+            stop = System.currentTimeMillis();
+
+            Collections.sort(solucion);
+            System.out.println("Archivo: " + archivo.getNombreFichero()
+                    + "\nSemilla: " + semilla
+                    + "\nAlgoritmo: " + algoritmo
+                    + "\nSolucion: " + solucion.toString()
+                    + "\nCoste Solución: " + coste
+                    + "\nTiempo: " + ((stop - start)) + " ms"
+                    + "\nTamaño matriz/TamañoSolucion: " + archivo.getTamMatriz() + "|" + archivo.getTamSolucion() + "\n\n");
+
             cdl.countDown();
         }
 
@@ -168,7 +163,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 for (int i = 0; i < tamañoMatriz && !mejora && iteracion < numIteraciones; i++) {
                     if (!solucion.contains(i)) {
                         nuevoCoste = factorizacion(matriz, tamañoSolucion, costeActual, solucion.get(posicion), i);
-                        
+
                         if (nuevoCoste > costeActual) {
                             intercambia(posicion, i);
 
@@ -205,7 +200,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         Integer tamañoSolucion = archivo.getTamSolucion();
         Integer tamañoMatriz = archivo.getTamMatriz();
         double[][] matriz = archivo.getMatriz();
-        
+
         Integer evaluacion = 0;
         Integer contadorReinicializacion = 0;
         Integer posicion;
@@ -213,7 +208,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         double costeMejorSolucion;
         double costeSolucionActual;
         double costeSolucionParcial;
-        
+
         Vector<Integer> solucionParcial = new Vector<>(tamañoSolucion);
         Vector<Integer> mejorSolucion = new Vector<>(tamañoSolucion);
         Vector<Integer> solucionActual = new Vector<>(tamañoSolucion);
@@ -245,7 +240,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 costeSolucionParcial = 0;
 
                 evaluacion++;
-                solucionActual = evaluarVecinos(numVecinos, marcados, costeF, solucionActual, costeSolucionActual, listaTabu, solucionParcial, costeSolucionParcial, elementoAnterior, posicion);;
+                solucionActual = evaluarVecinos(numVecinos, marcados, solucionActual, costeSolucionActual, listaTabu, solucionParcial, costeSolucionParcial, elementoAnterior, posicion);;
                 costeSolucionActual = coste(matriz, tamañoSolucion, solucionActual);
 
                 actualizarMemoriaLargoPlazo(memoriaLargoPlazo, solucionActual);
@@ -278,17 +273,16 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     contadorReinicializacion = 0;
                 }
             }
-            
+
             solucion = mejorSolucion;
         } catch (Exception e) {
-            System.err.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu(): " + e.toString() + ". Iteracion: " + evaluacion + ". Contador reinicializacion: " + contadorReinicializacion);
+            System.err.println("metaherísticas_pr_1.Algoritmos.BusquedaTabu(): excepcion capturada: " + e.toString() + ". Iteracion: " + evaluacion + ". Contador reinicializacion: " + contadorReinicializacion);
         }
 
         return coste(matriz, tamañoSolucion);
     }
 
     //Funciones auxiliares
-    
     /**
      * @brief Función que calcula el coste de un punto en una solucion
      * @param punto del que se quiere saber el coste
@@ -323,7 +317,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     /**
-     * @brief Función que calcula el coste de una solucion que se le pase como parametro
+     * @brief Función que calcula el coste de una solucion que se le pase como
+     * parametro
      * @param matriz matriz de distancias
      * @param tamañoSolucion tamaño de la solucion
      * @param vector una solucion
@@ -340,10 +335,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         return coste;
     }
-    
-    
+
     /**
-     * @brief Función que crealiza la factorizacion de la solucion al cambiar un elemento por otro que no este en la solucion
+     * @brief Función que crealiza la factorizacion de la solucion al cambiar un
+     * elemento por otro que no este en la solucion
      * @param matriz matriz de distancias
      * @param tamañoSolucion tamaño de la solucion
      * @param costeActual coste actual de la solucion
@@ -368,9 +363,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         return costeActual - costeResta + costeSuma;
     }
-    
+
     /**
-     * @brief Función que crealiza la factorizacion de una solucion al cambiar un elemento por otro que no este en la solucion
+     * @brief Función que crealiza la factorizacion de una solucion al cambiar
+     * un elemento por otro que no este en la solucion
      * @param matriz matriz de distancias
      * @param tamañoSolucion tamaño de la solucion
      * @param costeActual coste actual de la solucion
@@ -441,7 +437,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     /**
-     * @brief Operador de intercambio que cambia un elemento por otro en la solucion
+     * @brief Operador de intercambio que cambia un elemento por otro en la
+     * solucion
      * @param i indice del elemento que se quiere modificar
      * @param j elemento que se quiere añadir en la posicion i
      */
@@ -450,7 +447,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     /**
-     * @brief Operador de intercambio que cambia un elemento por otro en una solucion
+     * @brief Operador de intercambio que cambia un elemento por otro en una
+     * solucion
      * @param vector una solucion
      * @param i indice del elemento que se quiere modificar
      * @param j elemento que se quiere añadir en la posicion i
@@ -507,9 +505,11 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     /**
-     * @brief Funcion que realiza la intensificacion cuando queremos reiniciar la busqueda tabu. Busca los m elementos mas frecuentes
-     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se repite un elemento a lo largo de las iteraciones
-     * @param tamañoMatriz tamaño de la matriz 
+     * @brief Funcion que realiza la intensificacion cuando queremos reiniciar
+     * la busqueda tabu. Busca los m elementos mas frecuentes
+     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se
+     * repite un elemento a lo largo de las iteraciones
+     * @param tamañoMatriz tamaño de la matriz
      * @param tamañoSolucion tamaño de la solucion
      * @return vector solucion de tamaño m elementos con los mas frecuentes
      */
@@ -536,9 +536,11 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     /**
-     * @brief Funcion que realiza la diversificacion cuando queremos reiniciar la busqueda tabu. Busca los m elementos mas frecuentes
-     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se repite un elemento a lo largo de las iteraciones
-     * @param tamañoMatriz tamaño de la matriz 
+     * @brief Funcion que realiza la diversificacion cuando queremos reiniciar
+     * la busqueda tabu. Busca los m elementos mas frecuentes
+     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se
+     * repite un elemento a lo largo de las iteraciones
+     * @param tamañoMatriz tamaño de la matriz
      * @param tamañoSolucion tamaño de la solucion
      * @return vector solucion de tamaño m elementos con los menos frecuentes
      */
@@ -566,7 +568,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
     /**
      * @brief Función que realiza el reinicio de la busqueda tabu
-     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se repite un elemento a lo largo de las iteraciones
+     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se
+     * repite un elemento a lo largo de las iteraciones
      * @return vector solucion de tamaño m elementos con la nueva solucion
      */
     private Vector<Integer> reiniciar(Vector<Integer> memoriaLargoPlazo) {
@@ -580,10 +583,12 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             return calculaVectorMenosFrecuentes(memoriaLargoPlazo, archivo.getTamMatriz(), archivo.getTamSolucion());
         }
     }
-    
+
     /**
-     * @brief Funcion que actualiza la memoria a largo plazo con los elementos de una solucion
-     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se repite un elemento a lo largo de las iteraciones
+     * @brief Funcion que actualiza la memoria a largo plazo con los elementos
+     * de una solucion
+     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se
+     * repite un elemento a lo largo de las iteraciones
      * @param vector una solucion
      */
     private void actualizarMemoriaLargoPlazo(Vector<Integer> memoriaLargoPlazo, Vector<Integer> vector) {
@@ -591,9 +596,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             memoriaLargoPlazo.set(vector.get(i), memoriaLargoPlazo.get(vector.get(i)) + 1);
         }
     }
-    
+
     /**
-     * @brief Funcion que actualiza la lista tabu, añadiendo el elemento que se ha eliminado de la solucion y eliminando el elemento mas antiguo
+     * @brief Funcion que actualiza la lista tabu, añadiendo el elemento que se
+     * ha eliminado de la solucion y eliminando el elemento mas antiguo
      * @param listaTabu memoria que almacena los elementos de la lista tabu
      * @param tamañoMatriz tamaño de la matriz
      */
@@ -601,11 +607,12 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         listaTabu.offer(elementoAnterior);
         listaTabu.remove();
     }
-    
+
     /**
      * @brief Inicializa las memorias necesarias para la busqueda tabu
      * @param listaTabu memoria que almacena los elementos de la lista tabu
-     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se repite un elemento a lo largo de las iteraciones
+     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se
+     * repite un elemento a lo largo de las iteraciones
      */
     private void iniciarMemorias(ConcurrentLinkedQueue<Integer> listaTabu, Vector<Integer> memoriaLargoPlazo) {
 
@@ -617,7 +624,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             memoriaLargoPlazo.add(0);
         }
     }
-    
+
     /**
      * @brief Limpia las lista de marcados para la proxima seleccion de vecinos
      * @param marcados vector de elementos marcados que indica su estado
@@ -630,22 +637,29 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     /**
-     * @brief Funcion que genera un numVecinos y los evalua respecto de una solucion. Busca la mejor solucion entre los vecinos generados.
+     * @brief Funcion que genera un numVecinos y los evalua respecto de una
+     * solucion. Busca la mejor solucion entre los vecinos generados.
      * @param numVecinos numero de vecinos a generar
-     * @param marcados vector de elementos marcados para no repetir vecinos 
+     * @param marcados vector de elementos marcados para no repetir vecinos
      * @param costeF coste de la solucion factorizada
-     * @param solucionActual vector con la solucion actual que se esta trabajando
+     * @param solucionActual vector con la solucion actual que se esta
+     * trabajando
      * @param costeSolucionActual coste de la solucion actual
      * @param listaTabu lista de elementos tabu
-     * @param solucionParcial vector con la solucion parcial, incluye el vecino que se va a evaluar 
+     * @param solucionParcial vector con la solucion parcial, incluye el vecino
+     * que se va a evaluar
      * @param costeSolucionParcial coste de la solucion parcial
-     * @param elementoAnterior elemento que se va a sustituir en la solucion actual
+     * @param elementoAnterior elemento que se va a sustituir en la solucion
+     * actual
      * @param posicion posicion del elemento anterior
-     * @return vector solucion de tamaño m elementos con la mejor solucion de entre los vecinos
+     * @return vector solucion de tamaño m elementos con la mejor solucion de
+     * entre los vecinos
      */
-    private Vector<Integer> evaluarVecinos(Integer numVecinos, Vector<Boolean> marcados, double costeF,
-            Vector<Integer> solucionActual, double costeSolucionActual, ConcurrentLinkedQueue<Integer> listaTabu,
+    private Vector<Integer> evaluarVecinos(Integer numVecinos, Vector<Boolean> marcados, Vector<Integer> solucionActual,
+            double costeSolucionActual, ConcurrentLinkedQueue<Integer> listaTabu,
             Vector<Integer> solucionParcial, double costeSolucionParcial, Integer elementoAnterior, Integer posicion) {
+        double costeF = 0.0;
+
         while (numVecinos > 0) {
             int vecino;
             do {
@@ -672,7 +686,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
     /**
      * @brief Funcion que reiniciar las memorias de la busqueda tabu
-     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se repite un elemento a lo largo de las iteraciones
+     * @param memoriaLargoPlazo memoria que almacena el numero de veces que se
+     * repite un elemento a lo largo de las iteraciones
      * @param listaTabu lista de elementos tabu
      */
     private void reiniciarMemorias(Vector<Integer> memoriaLargoPlazo, ConcurrentLinkedQueue<Integer> listaTabu) {
