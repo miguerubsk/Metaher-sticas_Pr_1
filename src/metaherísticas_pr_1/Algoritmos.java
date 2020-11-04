@@ -70,12 +70,12 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             start = System.currentTimeMillis();
             switch (algoritmo) {
                 case ("Greedy"):
-//                    coste = Greedy();
+                    coste = Greedy();
 
                     break;
 
                 case ("Búsqueda_Local"):
-//                    coste = BusquedaLocal();
+                    coste = BusquedaLocal();
 
                     break;
 
@@ -268,7 +268,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         iniciarMemorias(listaTabu, memoriaLargoPlazo);
         try {
-            while (evaluacion < 50000) {
+            while (evaluacion < config.getEvaluaciones()) {
                 Integer numVecinos = 10;
 
                 posicion = menorAporte(tamañoSolucion, matriz, solucionActual);
