@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package metaherísticas_pr_1;
 
 import java.util.Arrays;
@@ -14,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import tools.Configurador;
+import tools.GuardarLog;
 
 /**
  *
@@ -21,15 +17,28 @@ import tools.Configurador;
  */
 public class Algoritmos implements Callable<Vector<Integer>> {
 
-    private String algoritmo;
-    private CargaDatos archivo;
-    private CountDownLatch cdl;
-    private Configurador config;
-    private Long semilla;
-    private Random aleatorio;
+    private String algoritmo; //Algoritmo que se va a ejecutar
+    private CargaDatos archivo; //Archivo de datos
+    private CountDownLatch cdl; //MEcanismo de control para la ejecucion de los hilos
+    private Configurador config; //Archivo de configuracion
+    private Long semilla; //Semilla para inicializacion
+    private Random aleatorio; //Generador de aleatorios
+    private GuardarLog log;
 
-    private Vector<Integer> solucion;
+    private Vector<Integer> solucion; //Vector que contiene la solucion final que se devolvera
 
+    /**
+     * @brief Constructor de la clase algoritmos que inicializa las variables
+     * necesarias para el correcto funcionamiento
+     * @param archivo contiene los datos que se han cargado para la ejecucion de
+     * este algoritmo
+     * @param cdl mecanismo de control para que los algoritmos esperen a la
+     * ejecucion con todas sus semillas de un mismo archivo
+     * @param semilla semilla para inicializacion
+     * @param algoritmo algoritmo que se va a usar
+     * @param config contiene informacion de configuracion para la ejecucion de
+     * los algoritmos
+     */
     public Algoritmos(CargaDatos archivo, CountDownLatch cdl, Long semilla, String algoritmo, Configurador config) {
         this.archivo = archivo;
         this.cdl = cdl;
@@ -37,10 +46,22 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         this.algoritmo = algoritmo;
         this.config = config;
         this.aleatorio = new Random(semilla);
+        String ruta = algoritmo + "_" + archivo.getNombreFichero() + "_" + semilla;
+        String info = "[EJECUCION INICIADA]\n"
+                + "Archivo: " + archivo.getNombreFichero()
+                + "\nSemilla: " + semilla
+                + "\nAlgoritmo: " + algoritmo
+                + "\nTamaño matriz/TamañoSolucion: " + archivo.getTamMatriz() + "|" + archivo.getTamSolucion();
+        this.log = new GuardarLog(ruta, info, algoritmo);
 
         this.solucion = new Vector<Integer>();
     }
 
+    /**
+     * @brief Funcion que ejecuta el hilo y el algoritmo seleccionado, y muestra
+     * informacion de la ejecucion al terminar
+     * @return vector con la solucion que ha dado el algoritmo
+     */
     @Override
     public Vector<Integer> call() {
         double coste = 0.0;
@@ -49,13 +70,13 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             start = System.currentTimeMillis();
             switch (algoritmo) {
                 case ("Greedy"):
-
                     coste = Greedy();
-
+                    
                     break;
 
                 case ("Búsqueda_Local"):
                     coste = BusquedaLocal();
+                    
                     break;
 
                 case ("Búsqueda_Tabú"):
@@ -70,14 +91,21 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             stop = System.currentTimeMillis();
 
             Collections.sort(solucion);
-            System.out.println("Archivo: " + archivo.getNombreFichero()
+            
+            String info = "[EJECUCION TERMINADA]\n"
+                    + "Archivo: " + archivo.getNombreFichero()
                     + "\nSemilla: " + semilla
                     + "\nAlgoritmo: " + algoritmo
                     + "\nSolucion: " + solucion.toString()
                     + "\nCoste Solución: " + coste
                     + "\nTiempo: " + ((stop - start)) + " ms"
-                    + "\nTamaño matriz/TamañoSolucion: " + archivo.getTamMatriz() + "|" + archivo.getTamSolucion() + "\n\n");
+                    + "\nTamaño matriz/TamañoSolucion: " + archivo.getTamMatriz() + "|" + archivo.getTamSolucion() + "\n\n";
+            
+            log.escribir(info);
+            log.cerrarFichero();
+            System.out.println(info);
 
+            
             cdl.countDown();
         }
 
@@ -85,7 +113,6 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     }
 
     //Algoritmos
-    
     /**
      * @brief Función que ejecuta el algoritmo Greedy
      */
@@ -99,6 +126,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         marcados[punto] = true;
 
         solucion.add(punto);
+        
+        log.escribir("Iteracion: 0\n" + solucion.toString() + "\nCoste: 0");
 
         for (int i = 1; i < archivo.getTamSolucion(); i++) {
             double d = 0.0;
@@ -119,6 +148,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             marcados[punto] = true;
             solucion.add(punto);
 
+            log.escribir("Iteracion: " + i + "\n" + solucion.toString() + "\nCoste: " + coste(archivo.getMatriz(), solucion.size()));
+
             mayordist = 0.0;
         }
 
@@ -137,7 +168,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         generarSolucionAleatoria(tamañoSolucion, tamañoMatriz);
         double costeActual = coste(matriz, tamañoSolucion);
         double nuevoCoste;
-
+        
+        log.escribir("Solucion inicial aleatoria: " + solucion.toString());
+        
         Vector<Double> aportes = new Vector<>();
         Vector<Boolean> seleccionados = new Vector<>();
 
