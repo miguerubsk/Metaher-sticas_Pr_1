@@ -25,16 +25,13 @@ public class GuardarLog {
             String carpeta = "log/" + algoritmo + "/";
             File directorio = new File(carpeta);
             if (!directorio.exists()) {
-//                System.out.println("tools.GuardarArchivos.GuardarArchivo(): creado directorio");
                 directorio.mkdirs();
             }
 
             File file = new File(carpeta + nombreArchivo + ".txt");
             if (!file.exists()) {
-//                System.out.println("tools.GuardarArchivos.GuardarArchivo(): creado archivo");
                 file.createNewFile();
             } else {
-//                System.out.println("tools.GuardarArchivos.GuardarArchivo(): eliminado y creado archivo");
                 file.delete();
                 file.createNewFile();
             }
@@ -55,13 +52,21 @@ public class GuardarLog {
             System.out.println("tools.GuardarLog.escribir()" + e.toString());
         }
     }
-
-    public void cerrarFichero() {
+    
+    public void escribirNoInfo(String texto) {
         try {
-            fichero.close();
+            fichero.write("\n" + texto + "\n");
         } catch (Exception e) {
-            System.out.println("tools.GuardarLog.cerrarFichero()" + e.toString());
+            System.out.println("tools.GuardarLog.escribir()" + e.toString());
         }
     }
 
+    public void escribirFinal(String texto) {
+        try {
+            fichero.write(separador + "\n" + texto + "\n");
+            fichero.close();
+        } catch (Exception e) {
+            System.out.println("tools.GuardarLog.escribir()" + e.toString());
+        }
+    }
 }

@@ -23,7 +23,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
     private Configurador config; //Archivo de configuracion
     private Long semilla; //Semilla para inicializacion
     private Random aleatorio; //Generador de aleatorios
-    private GuardarLog log;
+    private GuardarLog log; //Clase para generar los logs
 
     private Vector<Integer> solucion; //Vector que contiene la solucion final que se devolvera
 
@@ -70,13 +70,13 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             start = System.currentTimeMillis();
             switch (algoritmo) {
                 case ("Greedy"):
-                    coste = Greedy();
-                    
+//                    coste = Greedy();
+
                     break;
 
                 case ("Búsqueda_Local"):
-                    coste = BusquedaLocal();
-                    
+//                    coste = BusquedaLocal();
+
                     break;
 
                 case ("Búsqueda_Tabú"):
@@ -91,7 +91,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             stop = System.currentTimeMillis();
 
             Collections.sort(solucion);
-            
+
             String info = "[EJECUCION TERMINADA]\n"
                     + "Archivo: " + archivo.getNombreFichero()
                     + "\nSemilla: " + semilla
@@ -100,12 +100,10 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     + "\nCoste Solución: " + coste
                     + "\nTiempo: " + ((stop - start)) + " ms"
                     + "\nTamaño matriz/TamañoSolucion: " + archivo.getTamMatriz() + "|" + archivo.getTamSolucion() + "\n\n";
-            
-            log.escribir(info);
-            log.cerrarFichero();
+
+            log.escribirFinal(info);
             System.out.println(info);
 
-            
             cdl.countDown();
         }
 
@@ -126,7 +124,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         marcados[punto] = true;
 
         solucion.add(punto);
-        
+
         log.escribir("Iteracion: 0\n" + solucion.toString() + "\nCoste: 0");
 
         for (int i = 1; i < archivo.getTamSolucion(); i++) {
@@ -148,7 +146,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             marcados[punto] = true;
             solucion.add(punto);
 
-            log.escribir("Iteracion: " + i + "\n" + solucion.toString() + "\nCoste: " + coste(archivo.getMatriz(), solucion.size()));
+            log.escribir("Iteracion: " + i + "\n" + "Solucion actual: " + solucion.toString() + "\nCoste: " + coste(archivo.getMatriz(), solucion.size()));
 
             mayordist = 0.0;
         }
@@ -168,9 +166,9 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         generarSolucionAleatoria(tamañoSolucion, tamañoMatriz);
         double costeActual = coste(matriz, tamañoSolucion);
         double nuevoCoste;
-        
+
         log.escribir("Solucion inicial aleatoria: " + solucion.toString());
-        
+
         Vector<Double> aportes = new Vector<>();
         Vector<Boolean> seleccionados = new Vector<>();
 
@@ -181,6 +179,8 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
         Integer iteracion = 0;
         Integer posicion;
+        Integer elementoAnterior;
+        Integer elementoNuevo = 0;
         boolean mejora = true;
 
         while (iteracion < numIteraciones && mejora) {
@@ -192,6 +192,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             for (int k = 0; k < tamañoSolucion && iteracion < numIteraciones; k++) {
 
                 posicion = obtenerPosicionAporteMenor(aportes, seleccionados);
+                elementoAnterior = solucion.get(posicion);
 
                 for (int i = 0; i < tamañoMatriz && !mejora && iteracion < numIteraciones; i++) {
                     if (!solucion.contains(i)) {
@@ -199,11 +200,17 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
                         if (nuevoCoste > costeActual) {
                             intercambia(posicion, i);
-
+                            elementoNuevo = i;
                             costeActual = nuevoCoste;
+
                             mejora = true;
                         }
 
+                        log.escribir("Iteracion: " + iteracion + "\n"
+                                + "Elemento sustituido: " + elementoAnterior + "\n"
+                                + "Nuevo elemento: " + elementoNuevo + "\n"
+                                + "Solucion actual: " + solucion.toString()
+                                + "\nCoste: " + coste(archivo.getMatriz(), solucion.size()));
                         iteracion++;
                     }
                 }
@@ -230,14 +237,13 @@ public class Algoritmos implements Callable<Vector<Integer>> {
      * @brief Función que ejecuta el algoritmo Búsqueda Tabú
      */
     private double BusquedaTabu() {
-        Integer tamañoSolucion = archivo.getTamSolucion();
+        Integer tamañoSolucion = archivo.getTamSolucion(); 
         Integer tamañoMatriz = archivo.getTamMatriz();
         double[][] matriz = archivo.getMatriz();
 
         Integer evaluacion = 0;
         Integer contadorReinicializacion = 0;
         Integer posicion;
-        double costeF = 0.0;
         double costeMejorSolucion;
         double costeSolucionActual;
         double costeSolucionParcial;
@@ -273,6 +279,11 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 costeSolucionParcial = 0;
 
                 evaluacion++;
+                log.escribir("Iteracion: " + evaluacion + "\n"
+                        + "Elemento que se va a sustituir: " + elementoAnterior + "\n"
+                        + "Lista tabu: " + listaTabu.toString() + "\n"
+                        + "Coste actual: " + costeSolucionActual);
+
                 solucionActual = evaluarVecinos(numVecinos, marcados, solucionActual, costeSolucionActual, listaTabu, solucionParcial, costeSolucionParcial, elementoAnterior, posicion);;
                 costeSolucionActual = coste(matriz, tamañoSolucion, solucionActual);
 
@@ -692,6 +703,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
             double costeSolucionActual, ConcurrentLinkedQueue<Integer> listaTabu,
             Vector<Integer> solucionParcial, double costeSolucionParcial, Integer elementoAnterior, Integer posicion) {
         double costeF = 0.0;
+        int mejorVecino = 0;
 
         while (numVecinos > 0) {
             int vecino;
@@ -703,16 +715,23 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                 if (!listaTabu.contains(vecino)) {
 
                     costeF = factorizacion(archivo.getMatriz(), archivo.getTamSolucion(), costeSolucionActual, elementoAnterior, vecino, solucionActual);
+                    log.escribirNoInfo("    Vecino generado: " + vecino
+                            + "\n    Coste con el nuevo vecino: " + costeF);
                     numVecinos--;
                     if (costeSolucionParcial < costeF) {
-
+                        mejorVecino = vecino;
                         costeSolucionParcial = costeF;
                         solucionParcial = solucionActual;
+
                         intercambia(solucionParcial, posicion, vecino);
                     }
                 }
             }
         }
+
+        log.escribirNoInfo("Vecino que nos quedamos: " + mejorVecino
+                + "\nNuevo coste: " + costeSolucionParcial
+                + "\nSolucion nueva: " + solucionParcial.toString());
 
         return solucionParcial;
     }
