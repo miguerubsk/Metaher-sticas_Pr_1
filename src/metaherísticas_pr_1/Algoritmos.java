@@ -82,12 +82,12 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
                     break;
 
-                case ("Búsqueda_Local"):
+                case ("Busqueda_Local"):
                     coste = BusquedaLocal();
 
                     break;
 
-                case ("Búsqueda_Tabú"):
+                case ("Busqueda_Tabu"):
                     coste = BusquedaTabu();
 
                     break;
@@ -105,7 +105,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
                     + "\nSemilla: " + semilla
                     + "\nAlgoritmo: " + algoritmo
                     + "\nSolucion: " + solucion.toString()
-                    + "\nCoste Solución: " + coste
+                    + "\nCoste Solucion: " + coste
                     + "\nTiempo: " + ((stop - start)) + " ms"
                     + "\nTamaño matriz/TamañoSolucion: " + tamañoMatriz + "|" + tamañoSolucion + "\n\n";
 
