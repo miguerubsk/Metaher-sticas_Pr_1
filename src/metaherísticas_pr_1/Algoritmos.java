@@ -208,7 +208,7 @@ public class Algoritmos implements Callable<Vector<Integer>> {
 
                         log.escribir("Iteracion: " + iteracion + "\n"
                                 + "Elemento sustituido: " + elementoAnterior + "\n"
-                                + "Nuevo elemento: " + elementoNuevo + "\n"
+                                + "Nuevo elemento: " + i + "\n"
                                 + "Solucion actual: " + solucion.toString()
                                 + "\nCoste: " + coste(archivo.getMatriz(), solucion.size()));
                         iteracion++;
@@ -620,10 +620,14 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         double tirada = aleatorio.nextInt(2);
 
         if (tirada <= 0.5) {
-
+            log.escribir("======================================================="
+                    + "\nReiniciando con intensificacion: \n"
+                    + "=======================================================");
             return calculaVectorMasFrecuentes(memoriaLargoPlazo, archivo.getTamMatriz(), archivo.getTamSolucion());
         } else {
-
+            log.escribir("======================================================="
+                    + "\nReiniciando con diversificacion: \n"
+                    + "=======================================================");
             return calculaVectorMenosFrecuentes(memoriaLargoPlazo, archivo.getTamMatriz(), archivo.getTamSolucion());
         }
     }
