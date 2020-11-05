@@ -761,19 +761,28 @@ public class Algoritmos implements Callable<Vector<Integer>> {
         double costeF = 0.0;
         int mejorVecino = 0;
 
+        //Generamos numVecinos
         while (numVecinos > 0) {
             int vecino;
             do {
-                vecino = aleatorio.nextInt(archivo.getTamMatriz());
-            } while (marcados.get(vecino));
-            marcados.set(vecino, Boolean.TRUE);
+                vecino = aleatorio.nextInt(tamañoMatriz);   //Generamos un vecino hasta que encontremos 
+            } while (marcados.get(vecino));                 //uno que no este marcado como seleccionado
+            
+            marcados.set(vecino, Boolean.TRUE); //Marcamos el que hemos generado
+            
+            //Si el vecino no esta en la solucion ni en la lista tabu
             if (!solucionActual.contains(vecino)) {
                 if (!listaTabu.contains(vecino)) {
 
-                    costeF = factorizacion(archivo.getMatriz(), archivo.getTamSolucion(), costeSolucionActual, elementoAnterior, vecino, solucionActual);
+                    //Obtenemos el coste de sustituir el elemento
+                    costeF = factorizacion(matriz, tamañoSolucion, costeSolucionActual, elementoAnterior, vecino, solucionActual);
+                    
                     log.escribirNoInfo("    Vecino generado: " + vecino
                             + "\n    Coste con el nuevo vecino: " + costeF);
+                    
                     numVecinos--;
+                    
+                    //Si se mejora el coste con el nuevo vecino, guardamos la nueva solucion
                     if (costeSolucionParcial < costeF) {
                         mejorVecino = vecino;
                         costeSolucionParcial = costeF;
